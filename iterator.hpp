@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/12 00:29:27 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/14 23:18:17 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 # define ITERATOR_HPP
 
 #include <cstddef>
-#include <cstdio>	//FIXME
-#include <iterator>
 #include <memory>
 
 #include "is_integral.hpp"
@@ -124,13 +122,13 @@ public:
 * *                            operators                                        //TODO: CHECK
 *========================================================================**/
 	reference	operator*() const						{ return *__i; }
-    pointer		operator->() const						{ return __i; }     //!
+    pointer		operator->() const						{ return __i; }     //! //TODO
     wrap_iter&	operator++()							{ ++__i; return *this; }
     wrap_iter	operator++(int)							{ wrap_iter tmp(*this); ++(*this); return tmp; }
     wrap_iter&	operator--()							{ --__i; return *this; }
     wrap_iter	operator--(int)							{ wrap_iter tmp(*this); --(*this); return tmp; }
     wrap_iter&	operator+=(difference_type n)			{  __i += n; return *this; }
-    wrap_iter	operator+ (difference_type n) const		{ wrap_iter tmp(*this); tmp += n; return tmp; }	//NOTE: return local obj? => value is ok!
+    wrap_iter	operator+ (difference_type n) const		{ wrap_iter tmp(*this); tmp += n; return tmp; }
     wrap_iter&	operator-=(difference_type n)			{ *this += -n; return *this; }
     wrap_iter	operator- (difference_type n) const		{ return (*this + (-n)); }
     reference	operator[](difference_type n) const		{ return __i[n]; }
@@ -225,6 +223,46 @@ operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& 
 {
     return __x.base() != __y.base();
 }
+template <class _InputIter>
+typename iterator_traits<_InputIter>::difference_type
+distance(_InputIter __first, _InputIter __last)                 //NOTE: add randIter?
+{
+    typename iterator_traits<_InputIter>::difference_type __r(0);
+    for (; __first != __last; ++__first)
+        ++__r;
+    return __r;
+}
+
+
+template <class _InputIter>
+void __advance(_InputIter& __i,
+             typename iterator_traits<_InputIter>::difference_type __n)//, input_iterator_tag)
+{
+    for (; __n > 0; --__n)
+        ++__i;
+}
+
+// template <class _BiDirIter>
+// void __advance(_BiDirIter& __i,
+//              typename iterator_traits<_BiDirIter>::difference_type __n, bidirectional_iterator_tag)
+// {
+//     if (__n >= 0)
+//         for (; __n > 0; --__n)
+//             ++__i;
+//     else
+//         for (; __n < 0; ++__n)
+//             --__i;
+// }
+
+// template <class _RandIter>
+// void __advance(_RandIter& __i,
+//              typename iterator_traits<_RandIter>::difference_type __n, random_access_iterator_tag)
+// {
+//    __i += __n;
+// }
+
+
+
 
 }
 

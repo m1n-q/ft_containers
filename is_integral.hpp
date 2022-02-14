@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/01/28 17:22:14 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/14 17:30:51 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,8 @@ template <> 		struct is_integral_base<int>				: true_type {};
 template <> 		struct is_integral_base<unsigned int>		: true_type {};
 template <> 		struct is_integral_base<long>				: true_type {};
 template <> 		struct is_integral_base<unsigned long>		: true_type {};
-// template <> 		struct is_integral_base<long long>			: true_type {};
-// template <> 		struct is_integral_base<unsigned long long>	: true_type {};
+template <> 		struct is_integral_base<long long>			: true_type {};	//'
+template <> 		struct is_integral_base<unsigned long long>	: true_type {};	//'
 
 
 template <class T>	struct is_integral

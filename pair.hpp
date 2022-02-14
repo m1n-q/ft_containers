@@ -6,14 +6,12 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/26 15:42:34 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/10 22:25:11 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/14 23:17:23 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PAIR_HPP
 # define PAIR_HPP
-# include <iostream>	//FIXME
-# include <utility>		//FIXME
 
 namespace ft
 {
@@ -63,7 +61,6 @@ template <class T1, class T2> bool operator>= (const pair<T1,T2>& lhs, const pai
 template <class T1,class T2>
 pair<T1,T2> make_pair (T1 x, T2 y)
 {
-	std::cout << "here i am\n";
 	return ( pair<T1,T2>(x,y) );
 }
 

@@ -6,9 +6,12 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/12 01:23:57 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/14 23:16:14 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+//TODO: ! check size_type | difference_type
+//TODO: ! check leaks ( assign() not destroy??? )
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
@@ -43,7 +46,7 @@ public:
     typedef typename allocator_type::const_reference	const_reference;
     typedef wrap_iter<pointer>							iterator;
     typedef wrap_iter<const_pointer>					const_iterator;
-    typedef std::reverse_iterator<iterator>				reverse_iterator;		//TODO
+    typedef std::reverse_iterator<iterator>				reverse_iterator;		//TODO: test
     typedef std::reverse_iterator<const_iterator>		const_reverse_iterator;
 
 
@@ -75,19 +78,16 @@ public:
 					 __size_		(0),
 					 __cap_alloc_	(0, alloc)
 					 {
-						//TODO: n
 						if (n > 0)
 						{
 							vallocate(n);
 							construct_at_end(n, val);
 						}
-
 					 }
 
 	template <class InputIterator>
-	 		//NOTE: need to constrain (to separate with fill ctor)
-			//NOTE: but has_iterator_typedefs is fit?
-			 vector( typename enable_if<has_iterator_typedefs<InputIterator>::value, InputIterator>::type first,
+			 vector( typename enable_if<!is_integral<InputIterator>::value,
+			 		 InputIterator>::type first,
 			 		 InputIterator last,
 					 const allocator_type& alloc = allocator_type() )
 					:__begin_		(NULL),
@@ -95,17 +95,31 @@ public:
 					 __end_cap_		(NULL),
 					 __size_		(0),
 					 __cap_alloc_	(0, alloc)
-					 { printf("am i here?\n"); (void)first; (void)last; (void)alloc; }
+					 {
+						size_type n = static_cast<size_type>(distance(first, last));
+						if (n > 0)
+						{
+							vallocate(n);
+							for (;first!=last;++first)
+								push_back(*first);		//or construct_at_end?
+						}
+					 }
 
-//  template <class _Tp> struct __is_cpp17_input_iterator : public __has_iterator_category_convertible_to<_Tp, input_iterator_tag> {};
-			//TODO
 			 vector( const vector& src )
 					:__begin_		(NULL),
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
 					 __cap_alloc_	(0, src.get_allocator())	// is it copy
-					{ (void)src; }
+					{
+						size_type n = src.size();
+						if (n > 0)
+						{
+							vallocate(n);
+							for (const_iterator it = src.begin();it != src.end(); ++it)
+								push_back(*it);		//or construct_at_end?
+						}
+					}
 
 			~vector() {
 				while (__end_ != __begin_)
@@ -153,8 +167,31 @@ public:
 	const_reference			back() const			{ return *(this->__end_ - 1); }
 
 //' modifiers
-template <class InputIterator>
-    void					assign(InputIterator first, InputIterator last);		//TODO: implement
+	template <class InputIterator>
+	void assign(typename enable_if<!is_integral<InputIterator>::value,
+					InputIterator>::type first,
+					InputIterator last)
+	{
+		size_type new_size = static_cast<size_type>(distance(first, last));
+		if (new_size > capacity())
+		{
+			vdeallocate();		// end = begin
+			vallocate(recommend(new_size));
+			construct_at_end(first, last);
+		}
+		else
+		{
+			iterator cur(begin());
+
+			for (;first != last && cur != end(); ++cur, ++first)
+				*cur = *first;
+			if (first == last)
+				erase(cur, end());
+			else
+				insert(end(), first, last);
+		}
+	}
+
 	void					assign(size_type n, const value_type& u)
 	{
 		if (n <= capacity())
@@ -187,12 +224,15 @@ template <class InputIterator>
     	this->__destruct_at_end(this->__end_ - 1);
 	}
 
-template <class InputIterator>
-    void					insert(iterator position, InputIterator first, InputIterator last)
+	template <class InputIterator>
+    void					insert( iterator position,
+									typename enable_if<!is_integral<InputIterator>::value,
+									InputIterator>::type first,
+									InputIterator last)
 	{
 		if (first < last)
 		{
-			size_type		range_size		= unwrap_iter(last) - unwrap_iter(first);
+			size_type		range_size		= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
 			size_type		remained_cap	= (this->__end_cap() - this->__end_);
 
 			if (range_size <= remained_cap)
@@ -312,7 +352,8 @@ private:
 	const allocator_type&	__alloc() const					{ return this->__cap_alloc_.second; }		// const overloading?
     pointer&				__end_cap()						{ return this->__end_cap_; }
     const pointer&			__end_cap() const				{ return this->__end_cap_; }
-	iterator				__make_iter(pointer p) const	{ return iterator(p); }
+	const_iterator			__make_iter(const_pointer p) const	{ return const_iterator(p); }
+	iterator				__make_iter(pointer p) 			{ return iterator(p); }
 
 
 	void			vallocate(size_type n)	// initial allocate for now
@@ -372,7 +413,7 @@ private:
 
 	void			construct_at_end(iterator first, iterator last)
 	{
-		difference_type		__range_size_	= unwrap_iter(last) - unwrap_iter(first);
+		difference_type		__range_size_	= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
 		pointer				__pos_ 			= this->__end_;
 		pointer				__new_end_		= this->__end_ + __range_size_;
 		pointer				__first_		= unwrap_iter(first);
@@ -419,7 +460,7 @@ private:
 // public:
 	void			realloc_and_move(iterator position, iterator first, iterator last)	//check
 	{
-		difference_type		range_size	= unwrap_iter(last) - unwrap_iter(first);
+		difference_type		range_size	= unwrap_iter(last) - unwrap_iter(first);	//NOTE: distance
 		size_type			new_cap		= recommend(size() + range_size);
 		pointer				new_begin	= __alloc().allocate(new_cap); //LEAKS
 		pointer				pos			= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));

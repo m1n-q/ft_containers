@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 #include <forward_list>
-#include <filesystem>
+#include <fstream>
 
 #include "is_integral.hpp"
 #include "vector.hpp"
@@ -19,8 +19,8 @@
 
 
 /* !
- # iterators_traits					//NOTE: void_t, = NULL// TODO: wrapper for other tags, check arithmetics
- ! reverse_iterator
+ # iterators_traits					// TODO: wrapper for other tags, check arithmetics (opeators)
+ ! reverse_iterator					// TODO: wrapper for other tags, check arithmetics (opeators)
  @ enable_if
  @ is_integral
  @ equal/lexicographical compare	//TODO: test
@@ -78,9 +78,9 @@ int main()
 	// cout << p.second << endl;
 
 // ' vector
-	A a = A(123);
-	A b = A(456);
-	A c = A(789);
+	// A a = A(123);
+	// A b = A(456);
+	// A c = A(789);
 	// cout << a.n << endl;
 
 	// ft::vector<A> va;		//TODO: test const, if size == 0
@@ -267,9 +267,9 @@ int main()
 
         // ' insert
         {
-			// A a(100);
-			// std::vector<A> myvector(3, a);
-			// std::vector<A>::iterator it;
+			A a(100);
+			ft::vector<A> myvector(3, a);
+			ft::vector<A>::iterator it;
 
 			// it = myvector.begin();
 			// std::cout << "myvector contains:";
@@ -304,13 +304,13 @@ int main()
 			// 	std::cout << ' ' << *it;
 			// std::cout << '\n';
 
-			// A myarray[] = {501, 502, 503};
-			// myvector.insert(myvector.begin(), myarray, myarray + 3);
+			A myarray[] = {501, 502, 503};
+			myvector.insert(myvector.begin() + 1, 3, 999);
 
-			// std::cout << "myvector contains:";
-			// for (it = myvector.begin(); it < myvector.end(); it++)
-			// 	std::cout << ' ' << *it;
-			// std::cout << '\n';
+			std::cout << "myvector contains:";
+			for (it = myvector.begin(); it < myvector.end(); it++)
+				std::cout << ' ' << *it;
+			std::cout << '\n';
         }
 
 		// std::vector<A> myvector(3, A(10));
@@ -424,42 +424,94 @@ int main()
 			// std::cout << '\n';
 		}
 
-                std::vector<float> myvector;
-                for (int i = 1; i < 10; i++)
-                  myvector.push_back(i);
-
-                typedef std::vector<float>::iterator	iter_type;
-                													// ? 9 8 7 6 5 4 3 2 1 0 ?
-                iter_type from(myvector.begin()); 					//   ^
-                                                  					//         ------>
-                iter_type until(myvector.end());  					//                       ^
-                                                  					//
-                std::reverse_iterator<iter_type> rev_until(from); 	// ^                           											//         <------
-                std::reverse_iterator<iter_type> rev_from(until); 	//                     ^
 
 
-                // std::cout << "myvector:";
-                // while (rev_from != rev_until)
-                //   std::cout << ' ' << *rev_from++;
-                // std::cout << '\n';
-				cout << *from << endl;
-				cout << *(until-1) << endl;
-
-				cout << *(rev_from) << endl;		// should be rev_from
-				cout << *(rev_until-1) << endl;		// should be rev_until-1
-
-				cout << boolalpha << ((rev_until).base() == from) << endl;
 
 
-				// ! constructible with forward-iterator, but only works with bi-directional or random-access iterator
-				std::forward_list<int> flist;
-				flist.push_front(10);
-				typedef std::forward_list<int>::iterator forward_iter;
-				forward_iter it = flist.begin();
-				std::reverse_iterator<forward_iter> rit(it);
 
-				rit++;
-				// rit--;
+		// ' reverse_iterator
+		{
+			// std::vector<float> myvector;
+			// for (int i = 1; i < 10; i++)
+			// 	myvector.push_back(i);
+
+			// typedef std::vector<float>::iterator	iter_type;
+			// 													// ? 9 8 7 6 5 4 3 2 1 0 ?
+			// iter_type from(myvector.begin()); 					//   ^
+			// 													//         ------>
+			// iter_type until(myvector.end());  					//                       ^
+			// 													//
+			// std::reverse_iterator<iter_type> rev_until(from); 	// ^                           											//         <------
+			// std::reverse_iterator<iter_type> rev_from(until); 	//                     ^
+
+
+			// // std::cout << "myvector:";
+			// // while (rev_from != rev_until)
+			// //   std::cout << ' ' << *rev_from++;
+			// // std::cout << '\n';
+			// cout << *from << endl;
+			// cout << *(until-1) << endl;
+
+			// cout << *(rev_from) << endl;		// should be rev_from
+			// cout << *(rev_until-1) << endl;		// should be rev_until-1
+
+			// cout << boolalpha << ((rev_until).base() == from) << endl;
+		}
+
+
+			// // ! constructible with forward-iterator, but only works with bi-directional or random-access iterator
+			// std::forward_list<int> flist;
+			// flist.push_front(10);
+			// typedef std::forward_list<int>::iterator forward_iter;
+			// forward_iter it = flist.begin();
+			// std::reverse_iterator<forward_iter> rit(it);
+
+			// rit++;
+			// // rit--;
+
+
+
+			// ' range constructor
+			// A arr[] = { 1, 2, 3 };
+			// ft::vector<A> vv(arr, arr+3);
+			// for (unsigned i = 0; i < vv.size(); i++)
+			// 	cout << vv[i] << endl;
+			// cout << vv.capacity() << endl;
+			// cout << "=============" << endl;
+
+			// ft::vector<A> vv2(vv);
+			// for (unsigned i = 0; i < vv2.size(); i++)
+			// 	cout << vv2[i] << endl;
+			// cout << vv2.capacity() << endl;
+// ' assign
+	// ft::vector<A> first;
+	// ft::vector<A> second;
+	// ft::vector<A> third;
+
+	// first.assign (7,100);             // 7 ints with a value of 100
+
+	// ft::vector<A>::iterator it;
+	// it=first.begin()+1;
+
+	// second.push_back(1000);
+	// second.push_back(1000);
+	// second.push_back(1000);
+	// second.push_back(1000);
+	// second.push_back(1000);
+	// second.assign (it,first.end()-1); // the 5 central values of first
+
+	// A myints[] = {1776,7,4};
+	// third.assign (myints,myints+3);   // assigning from array.
+
+	// std::cout << "Size of first: " << int (first.size()) << '\n';
+	// std::cout << "Size of second: " << int (second.size()) << '\n';
+	// std::cout << "Size of third: " << int (third.size()) << '\n';
+
+	// std::cout << "Cap of first: " << int (first.capacity()) << '\n';
+	// std::cout << "Cap of second: " << int (second.capacity()) << '\n';
+	// std::cout << "Cap of third: " << int (third.capacity()) << '\n';
+  return 0;
+
 
 }
 
@@ -487,7 +539,7 @@ vector<_Tp, _Allocator>::__recommend(size_type __new_size) const
 
 
 
-}
+
 
 
 */
