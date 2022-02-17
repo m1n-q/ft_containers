@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/14 23:16:14 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/15 16:00:29 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ using std::allocator;
 template <typename T, class Allocator = allocator<T> >
 class vector
 {
-
+/**========================================================================
+* '                              typedef
+*========================================================================**/
 public:
 	typedef T											value_type;
     typedef Allocator									allocator_type;
@@ -46,8 +48,8 @@ public:
     typedef typename allocator_type::const_reference	const_reference;
     typedef wrap_iter<pointer>							iterator;
     typedef wrap_iter<const_pointer>					const_iterator;
-    typedef std::reverse_iterator<iterator>				reverse_iterator;		//TODO: test
-    typedef std::reverse_iterator<const_iterator>		const_reverse_iterator;
+    typedef ft::reverse_iterator<iterator>				reverse_iterator;		//TODO: test
+    typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
 
 protected:
@@ -132,7 +134,15 @@ public:
 
 	reference		operator[]( size_type n ) 		{ return this->__begin_[n]; }
 	const_reference	operator[]( size_type n ) const	{ return this->__begin_[n]; }
-	vector&			operator=( const vector& src );
+	vector&			operator=( const vector& src )
+	{
+		if (this != &src)
+    	{
+        	assign(src.begin(), src.end());
+    	}
+    	return *this;
+	}
+
 
 
 /**========================================================================
@@ -221,7 +231,7 @@ public:
 	void					pop_back(void)
 	{
 		// _LIBCPP_ASSERT(!empty(), "vector::pop_back called for empty vector");
-    	this->__destruct_at_end(this->__end_ - 1);
+    	this->destruct_at_end(this->__end_ - 1);
 	}
 
 	template <class InputIterator>
@@ -238,7 +248,6 @@ public:
 			if (range_size <= remained_cap)
 			{
 				size_type	d = end() - position;
-				printf("d = %ld\n", d);
 				if (range_size > d)		// why..?		//TODO: compare each if consruct order with std, consider why d.
 				{
 					construct_at_end(first + d, last);
@@ -434,7 +443,7 @@ private:
 			this->__alloc().destroy(--/*soon to be*/__end_);
 			--__size_;
 		}
-		// soon_to_be_end_		=		__end_;
+		// __end_ = new_last;
 	}
 
 	void			realloc_and_move(size_type n, const value_type& x)
@@ -513,14 +522,24 @@ private:
 };
 
 /**========================================================================
-* *                          non-member operators
+* *                        relational-operators
 *========================================================================**/
-template <class T, class Alloc> bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-template <class T, class Alloc> bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-template <class T, class Alloc> bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-template <class T, class Alloc> bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-template <class T, class Alloc> bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-template <class T, class Alloc> bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+template <class T, class Alloc> bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+{
+	return	lhs.size() == rhs.size() &&
+			equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class T, class Alloc> bool operator<  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)
+{
+	return lexicographical_compare( lhs.begin(), lhs.end(),
+									rhs.begin(), rhs.end() );
+}
+
+template <class T, class Alloc> bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)	{ return !(lhs == rhs); }
+template <class T, class Alloc> bool operator>  (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)	{ return rhs < lhs; }
+template <class T, class Alloc> bool operator<= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)	{ return !(lhs > rhs); }
+template <class T, class Alloc> bool operator>= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs)	{ return !(lhs < rhs); }
 
 /**========================================================================
 * #                         non-member functions
@@ -529,6 +548,6 @@ template <class T, class Alloc> void swap (vector<T,Alloc>& x, vector<T,Alloc>& 
 
 // ! SFIANE => 함수의 "선언부" 에 올바르지 않은 타입을 넣어서 타입 치환 오류를 발생시켜야 합니다.
 // '                 ^^^^^
-#endif
 
 }
+#endif

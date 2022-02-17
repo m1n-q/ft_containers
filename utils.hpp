@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/09 17:55:11 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/17 14:41:08 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,5 +40,22 @@ void destruct_backward(Alloc& alloc, T* begin, T* end)
 {
 	while (end != begin)
 		alloc.destroy(--end);
+}
+
+template <class InputIterator>
+bool equal(InputIterator first1, InputIterator last1, InputIterator first2)
+{
+	for (; first1 != last1; ++first1, (void) ++first2)
+        if (*first1 != *first2)
+            return false;
+    return true;
+}
+
+template <class T>
+T max(T a, T b)
+{
+	if (a < b)
+		return b;
+	return a;
 }
 #endif

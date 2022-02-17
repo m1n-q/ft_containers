@@ -16,6 +16,8 @@
 #include "vector.hpp"
 #include "pair.hpp"
 #include "algorithm.hpp"
+#include "stack.hpp"
+#include "tree.hpp"
 
 
 /* !
@@ -267,9 +269,9 @@ int main()
 
         // ' insert
         {
-			A a(100);
-			ft::vector<A> myvector(3, a);
-			ft::vector<A>::iterator it;
+			// A a(100);
+			// ft::vector<A> myvector(3, a);
+			// ft::vector<A>::iterator it;
 
 			// it = myvector.begin();
 			// std::cout << "myvector contains:";
@@ -304,13 +306,13 @@ int main()
 			// 	std::cout << ' ' << *it;
 			// std::cout << '\n';
 
-			A myarray[] = {501, 502, 503};
-			myvector.insert(myvector.begin() + 1, 3, 999);
+			// A myarray[] = {501, 502, 503};
+			// myvector.insert(myvector.begin() + 1, 3, 999);
 
-			std::cout << "myvector contains:";
-			for (it = myvector.begin(); it < myvector.end(); it++)
-				std::cout << ' ' << *it;
-			std::cout << '\n';
+			// std::cout << "myvector contains:";
+			// for (it = myvector.begin(); it < myvector.end(); it++)
+			// 	std::cout << ' ' << *it;
+			// std::cout << '\n';
         }
 
 		// std::vector<A> myvector(3, A(10));
@@ -510,8 +512,61 @@ int main()
 	// std::cout << "Cap of first: " << int (first.capacity()) << '\n';
 	// std::cout << "Cap of second: " << int (second.capacity()) << '\n';
 	// std::cout << "Cap of third: " << int (third.capacity()) << '\n';
-  return 0;
 
+// ' stack
+	// ft::stack<int> a;
+
+
+	// a.push(10);
+	// a.push(11);
+	// a.push(12);
+
+	// cout << a.top() <<endl;
+	// cout << boolalpha<< a.empty() << endl;
+	// a.pop();
+	// cout << a.top() <<endl;
+	// a.pop();
+	// cout << a.top() <<endl;
+	// a.pop();
+	// cout << boolalpha<< a.empty() << endl;
+
+	ft::AVL<int> tree;
+	ft::buf<int> _;
+	ft::buf<int> __;
+	ft::buf<int> ___;
+	ft::Node<int>* v;
+
+	tree.insert(35);
+	tree.insert(34);
+	// tree.remove(tree.search(35));
+	// tree.print(tree._root, 0, _);
+	tree.insert(30);
+	tree.insert(20);
+	tree.insert(31);
+	tree.insert(48);
+	tree.insert(38);
+	tree.insert(50);
+	tree.insert(37);
+	v = tree.insert(43);
+	tree.insert(47);
+	tree.insert(42);
+	tree.insert(49);
+	tree.insert(46);
+	tree.insert(45);
+
+	cout << "==================\n" << endl;
+	tree.remove(v);
+	// tree.remove(tree.search(38));
+	tree.print(tree._root, 0, _);
+	// tree.delete_by_merging(tree.search(40));
+	// tree.print(tree._root, 0, __);
+
+
+
+	// tree.remove(tree._root);
+	// tree.print(tree._root, 0, __);
+	// tree.remove(tree._root);
+	// tree.print(tree._root, 0, ___);
 
 }
 
