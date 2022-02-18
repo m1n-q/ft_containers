@@ -10,7 +10,9 @@
 #include <memory>
 #include <vector>
 #include <forward_list>
+#include <functional>
 #include <fstream>
+#include <__tree>
 
 #include "is_integral.hpp"
 #include "vector.hpp"
@@ -530,34 +532,34 @@ int main()
 	// a.pop();
 	// cout << boolalpha<< a.empty() << endl;
 
-	ft::AVL<int> tree;
-	ft::buf<int> _;
-	ft::buf<int> __;
-	ft::buf<int> ___;
-	ft::Node<int>* v;
+	// ft::AVL<int> tree;
+	// ft::buf<int> _;
+	// ft::buf<int> __;
+	// ft::buf<int> ___;
+	// ft::Node<int>* v;
 
-	tree.insert(35);
-	tree.insert(34);
-	// tree.remove(tree.search(35));
+	// tree.insert(35);
+	// tree.insert(34);
+	// // tree.remove(tree.search(35));
+	// // tree.print(tree._root, 0, _);
+	// tree.insert(30);
+	// tree.insert(20);
+	// tree.insert(31);
+	// tree.insert(48);
+	// tree.insert(38);
+	// tree.insert(50);
+	// tree.insert(37);
+	// v = tree.insert(43);
+	// tree.insert(47);
+	// tree.insert(42);
+	// tree.insert(49);
+	// tree.insert(46);
+	// tree.insert(45);
+
+	// cout << "==================\n" << endl;
+	// tree.remove(v);
+	// // tree.remove(tree.search(38));
 	// tree.print(tree._root, 0, _);
-	tree.insert(30);
-	tree.insert(20);
-	tree.insert(31);
-	tree.insert(48);
-	tree.insert(38);
-	tree.insert(50);
-	tree.insert(37);
-	v = tree.insert(43);
-	tree.insert(47);
-	tree.insert(42);
-	tree.insert(49);
-	tree.insert(46);
-	tree.insert(45);
-
-	cout << "==================\n" << endl;
-	tree.remove(v);
-	// tree.remove(tree.search(38));
-	tree.print(tree._root, 0, _);
 	// tree.delete_by_merging(tree.search(40));
 	// tree.print(tree._root, 0, __);
 
@@ -568,6 +570,38 @@ int main()
 	// tree.remove(tree._root);
 	// tree.print(tree._root, 0, ___);
 
+	std::allocator<char> ca;
+	greater<char>	g;
+	__tree<char, greater<char>, std::allocator<char> > tt(g);
+
+	tt.__insert_unique('c');
+	tt
+	tt.__insert_unique('a');
+	tt.__insert_unique('e');
+	tt.__insert_unique('f');
+	tt.__insert_unique('h');
+	tt.__insert_unique('d');
+	tt.__insert_unique('b');
+	tt.__insert_unique('g');
+
+
+	__tree<char, less<char>, std::allocator<char> >:: iterator it;
+	// __tree<char, less<char>, std::allocator<char> >:: iterator ite;
+	for (it = tt.begin(); it != tt.end(); it++)
+		cout << *it << " ";
+	cout << endl;
+
+	ft::AVL<char> al;
+	al.insert('c');
+	al.insert('a');
+	al.insert('e');
+	al.insert('f');
+	al.insert('h');
+	al.insert('d');
+	al.insert('b');
+	al.insert('g');
+
+	al.print_inorder(al._root);
 }
 
 
@@ -598,3 +632,6 @@ vector<_Tp, _Allocator>::__recommend(size_type __new_size) const
 
 
 */
+
+
+

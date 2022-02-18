@@ -6,13 +6,14 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/17 22:17:48 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/18 16:04:18 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
+//TODO: canonical form
 #ifndef TREE_HPP
 # define TREE_HPP
-
 
 #include <cstddef>
 #include <string>
@@ -22,7 +23,7 @@
 namespace ft
 {
 
-template <class T>
+template <class T> // class Comp, class Alloc>
 class Node
 {
 public:
@@ -74,10 +75,12 @@ public:
 // protected:
 public:
 	node*		_root;
+	node*		_begin_node;	// in-order
+	node*		_end_node;	// in-order
 	size_type	_size;
 
 public:
-	BST() : _root(NULL), _size(0) {}
+	BST() : _root(NULL), _begin_node(NULL), _end_node(NULL), _size(0) {}
 
 	node* insert(value_type val)
 	{
@@ -86,7 +89,10 @@ public:
 		{
 			node* v = new node(val);
 			if (p == NULL)
+			{
 				this->_root = v;
+				this->_begin_node = v;
+			}
 			else
 			{
 				v->parent = p;
@@ -94,7 +100,11 @@ public:
 				if (p->val > val)		p->left	= v;
 				else					p->right = v;
 			}
+
 			_size++;
+			if (_begin_node->left != NULL)
+				_begin_node = _begin_node->left;
+
 			return v;
 		}
 		// std::cout << "value [" << val << "] is already exists." << std::endl;
@@ -296,8 +306,6 @@ public:
 	typedef Node<value_type>		node;
 	typedef BST<value_type>			bst;
 
-
-
 	node* insert(value_type val)
 	{
 		node* x, *y, *z;
@@ -363,6 +371,13 @@ public:
 		return newz;
 	}
 
+	void	print_inorder(node* x)
+	{
+		if (!x)	return;
+		print_inorder(x->left);
+		std::cout << x->val << " ";
+		print_inorder(x->right);
+	}
 private:
 
 	size_type	get_bf(node* z)
