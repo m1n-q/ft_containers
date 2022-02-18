@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/18 14:24:30 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/18 16:19:17 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,13 @@
 
 # include "tree.hpp"
 # include "iterator.hpp"
+/**------------------------------------------------------------------------
+ * 								//TODO
+ * * check _begin_node for iterator (in-order)
+ * * _Compare to template param (test with less, greater...)
+ *
+ *
+ *------------------------------------------------------------------------**/
 
 namespace ft
 {
