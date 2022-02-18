@@ -575,7 +575,6 @@ int main()
 	__tree<char, greater<char>, std::allocator<char> > tt(g);
 
 	tt.__insert_unique('c');
-	tt
 	tt.__insert_unique('a');
 	tt.__insert_unique('e');
 	tt.__insert_unique('f');

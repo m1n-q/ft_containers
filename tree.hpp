@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/18 16:04:18 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/18 16:20:49 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,13 @@
 #include "tmp.hpp"
 #include "utils.hpp"
 
+/**------------------------------------------------------------------------
+ * 								//TODO
+ * * check _begin_node for iterator (in-order)
+ * * _Compare to template param (test with less, greater...)
+ * ' now watching _begin_node...
+ *
+ *------------------------------------------------------------------------**/
 namespace ft
 {
 
