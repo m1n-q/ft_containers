@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/18 16:20:49 by mishin           ###   ########.fr       */
+/*   Updated: 2022/02/21 18:25:08 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ public:
 	Node*		right;
 	value_type	val;
 	bool		empty;		//FIXME : tmp for print
-	// size_type	height;
 
 	Node(bool e)			: parent(NULL), left(NULL), right(NULL), val(0), empty(e) {}
 	Node(value_type v)			: parent(NULL), left(NULL), right(NULL), val(v), empty(false) {}
@@ -112,7 +111,9 @@ public:
 			if (_begin_node->left != NULL)
 				_begin_node = _begin_node->left;
 
+			std::cout << "@@begin_node : " << _begin_node << std::endl;
 			return v;
+
 		}
 		// std::cout << "value [" << val << "] is already exists." << std::endl;
 		return NULL;
@@ -408,10 +409,60 @@ private:
 		return (bst::get_height(x->left) > bst::get_height(x->right)) ?		// select heavier subtree
 				x->left : x->right;
 	}
+
+	node*	deepest_left(node* x)
+	{
+		while (x->left != NULL)\
+			x = x->left;
+		return x;
+	}
+	node*	deepest_right(node* x)
+	{
+		while (x->right != NULL)\
+			x = x->right;
+		return x;
+	}
+	bool	is_left_child(node* x)		//precondition: x != NULL
+	{
+		if (!x || !x->parent) return false;	// diff w std
+		return (x == x->parent->left);
+	}
+	bool	is_right_child(node* x)
+	{
+
+		return (x == x->parent->right);
+	}
+
+public:
+	node*	next(node* x)
+	{
+		if (!x)	return NULL;	// diff w/ std?
+
+		if (x->right != NULL)
+			return (deepest_left(x->right));
+		while (x && !is_left_child(x))
+			x = x->parent;
+		if (x)
+			return (x->parent);
+		else
+			return NULL;		//TODO: what if x == end() (NULL) in std?
+	}
+
+	node*	prev(node* x)
+	{
+		if (!x)	return NULL;	// diff w/ std?
+
+
+		if (x->left != NULL)
+			return deepest_right(x->left);
+		while (is_left_child(x))
+        	x = x->parent;
+		if (x)
+			return (x->parent);
+		else
+			return NULL;		//TODO: what if x == end() (NULL) in std?
+	}
 };
-
-
-
 
 
 

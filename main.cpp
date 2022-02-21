@@ -570,37 +570,60 @@ int main()
 	// tree.remove(tree._root);
 	// tree.print(tree._root, 0, ___);
 
-	std::allocator<char> ca;
-	greater<char>	g;
-	__tree<char, greater<char>, std::allocator<char> > tt(g);
+	// std::allocator<char> ca;
+	// less<char>	g;
+	// __tree<char, less<char>, std::allocator<char> > tt(g);
 
-	tt.__insert_unique('c');
-	tt.__insert_unique('a');
-	tt.__insert_unique('e');
-	tt.__insert_unique('f');
-	tt.__insert_unique('h');
-	tt.__insert_unique('d');
-	tt.__insert_unique('b');
-	tt.__insert_unique('g');
+	// tt.__insert_unique('c');
+	// tt.__insert_unique('a');
+	// tt.__insert_unique('e');
+	// tt.__insert_unique('f');
+	// tt.__insert_unique('h');
+	// tt.__insert_unique('d');
+	// tt.__insert_unique('b');
+	// tt.__insert_unique('g');
 
+	std::allocator<int> ca;
+	less<int>	g;
+	__tree<int, less<int>, std::allocator<int> > tt(g);
 
-	__tree<char, less<char>, std::allocator<char> >:: iterator it;
-	// __tree<char, less<char>, std::allocator<char> >:: iterator ite;
+	tt.__insert_unique(9);
+	tt.__insert_unique(8);
+	tt.__insert_unique(6);
+	tt.__insert_unique(7);
+	tt.__insert_unique(3);
+	tt.__insert_unique(5);
+	tt.__insert_unique(2);
+	tt.__insert_unique(4);
+	tt.__insert_unique(1);
+
+	// __tree<char, less<char>, std::allocator<char> >:: iterator it;
+	__tree<int, less<int>, std::allocator<int> >:: iterator it;
 	for (it = tt.begin(); it != tt.end(); it++)
 		cout << *it << " ";
 	cout << endl;
 
-	ft::AVL<char> al;
-	al.insert('c');
-	al.insert('a');
-	al.insert('e');
-	al.insert('f');
-	al.insert('h');
-	al.insert('d');
-	al.insert('b');
-	al.insert('g');
+	ft::AVL<int> al;
+	al.insert(9);
+	al.insert(8);
+	al.insert(6);
+	al.insert(7);
+	al.insert(3);
+	al.insert(5);
+	al.insert(2);
+	al.insert(4);
+	al.insert(1);
 
 	al.print_inorder(al._root);
+	cout << endl;
+
+	for (ft::Node<int>* i = al._begin_node; i != NULL; i = al.next(i))
+	{
+		cout << i->val;
+		if (al.prev(i) == NULL) cout << " ";
+		else cout << "(" << al.prev(i)->val << ") " ;
+	}
+	cout << endl;
 }
 
 

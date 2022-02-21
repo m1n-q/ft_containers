@@ -1,5 +1,5 @@
 CC = clang++ 
-CFLAGS = -Wall -Werror -Wextra -std=c++98# -g -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -std=c++98 -g -fsanitize=address
 SRCS = main.cpp
 OBJS = $(SRCS:.cpp=.o)
 NAME = a.out
