@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/17 14:41:08 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/07 12:06:16 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,5 +57,14 @@ T max(T a, T b)
 	if (a < b)
 		return b;
 	return a;
+}
+
+template <class U>
+void	__swap(U& u1, U& u2)
+{
+	U tmp = u1;
+
+	u1 = u2;
+	u2 = tmp;
 }
 #endif

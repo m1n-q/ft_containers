@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/14 23:18:17 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/04 21:19:15 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,7 @@ public:
 * *                            operators										//TODO: CHECK
 *========================================================================**/
 	reference	        operator*() const						{ Iter tmp(__i); return *(--tmp); }	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
-    //! pointer		        operator->() const						{ return (&operator*()); }
+    pointer		        operator->() const						{ return (&operator*()); }          // ! check
     reverse_iterator&	operator++()							{ --__i; return *this; }
     reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__i; return tmp; } // !
     reverse_iterator&	operator--()							{ ++__i; return *this; }
@@ -219,9 +219,15 @@ public:
 
 template <class _Iter1, class _Iter2>
 bool
+operator==(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& __y)
+{
+    return __x.base() == __y.base();
+}
+template <class _Iter1, class _Iter2>
+bool
 operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& __y)
 {
-    return __x.base() != __y.base();
+    return !(__x  == __y);
 }
 template <class _InputIter>
 typename iterator_traits<_InputIter>::difference_type

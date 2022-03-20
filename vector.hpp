@@ -6,12 +6,11 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/15 16:00:29 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/12 03:34:07 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//TODO: ! check size_type | difference_type
-//TODO: ! check leaks ( assign() not destroy??? )
+
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
@@ -27,9 +26,29 @@
 # include "pair.hpp"
 # include "utils.hpp"
 
+
+//TODO: ! check size_type | difference_type
+/**------------------------------------------------------------------------
+ * 								//TODO
+ *
+ * ! const testcase
+ * ! check LEAK
+ * ! fix insert()
+ * ! impl reserve()
+ * ' constructors, operator=
+ * ' swap()
+ * * pop_back() => check done!
+ * * empty, size => check done!
+ * * [], at, front, back => check done!
+ * * push_back() => check done!
+ * * assign() => check done!
+ * * erase() => check done!
+ * * clear() => check done!
+ *
+ *------------------------------------------------------------------------**/
 namespace ft
 {
-using std::allocator;
+using std::allocator;	//DELETE
 
 template <typename T, class Allocator = allocator<T> >
 class vector
@@ -57,18 +76,18 @@ protected:
 	pointer							__end_;
 	pointer							__end_cap_;
 	size_type						__size_;		//NOTE: no use in std?
-	pair<size_type, allocator_type>	__cap_alloc_;
-public:
+	allocator_type					__alloc_;
 /**========================================================================
 * @                           Constructors
 *========================================================================**/
+public:
 
 	explicit vector( const allocator_type& alloc = allocator_type() )
 					:__begin_		(NULL),
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
-					 __cap_alloc_	(0, alloc)
+					 __alloc_		(alloc)
 					 {}
 
 	explicit vector( size_type				n,
@@ -78,7 +97,7 @@ public:
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
-					 __cap_alloc_	(0, alloc)
+					 __alloc_		(alloc)
 					 {
 						if (n > 0)
 						{
@@ -96,7 +115,7 @@ public:
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
-					 __cap_alloc_	(0, alloc)
+					 __alloc_		(alloc)
 					 {
 						size_type n = static_cast<size_type>(distance(first, last));
 						if (n > 0)
@@ -112,7 +131,7 @@ public:
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
-					 __cap_alloc_	(0, src.get_allocator())	// is it copy
+					 __alloc_		(src.get_allocator())	// is it copy
 					{
 						size_type n = src.size();
 						if (n > 0)
@@ -123,10 +142,10 @@ public:
 						}
 					}
 
-			~vector() {
-				while (__end_ != __begin_)
-					__alloc().destroy(--__end_);
-			}
+			~vector()
+					{
+						vdeallocate();
+					}
 
 /**========================================================================
 * *                            operators
@@ -162,7 +181,7 @@ public:
 //' capacity
 	size_type				size() const			{ return this->__size_; }		//Returns the number of elements in the vector. This is the number of actual objects held in the vector, which is not necessarily equal to its storage capacity.
 	size_type				max_size() const		{ return std::min<size_type>(std::numeric_limits<difference_type>::max(), this->__alloc().max_size()); }	//NOTE: min OK?
-	size_type				capacity() const		{ return this->__cap(); }
+	size_type				capacity() const		{ return static_cast<size_type>(__end_cap() - __begin_); }
 	bool					empty() const			{ return (this->__size_ == 0); }
 	void					reserve(size_type n);
 
@@ -185,6 +204,7 @@ public:
 		size_type new_size = static_cast<size_type>(distance(first, last));
 		if (new_size > capacity())
 		{
+			// printf("CASE 1\n");
 			vdeallocate();		// end = begin
 			vallocate(recommend(new_size));
 			construct_at_end(first, last);
@@ -196,27 +216,37 @@ public:
 			for (;first != last && cur != end(); ++cur, ++first)
 				*cur = *first;
 			if (first == last)
+			{
+				// printf("CASE 2\n");
 				erase(cur, end());
+			}
 			else
+			{
+				// printf("CASE 3\n");
 				insert(end(), first, last);
+			}
 		}
 	}
 
 	void					assign(size_type n, const value_type& u)
 	{
-		if (n <= capacity())
-		{
-			_VSTD::fill_n(this->__begin_, _VSTD::min(n, __size_), u);	//TODO : fill_n -> assign operator loop
-			if (n > __size_)
-				construct_at_end(n - __size_, u);
-			else
-				this->destruct_at_end(this->__begin_ + n);
-		}
-		else
+		if (n > capacity())
 		{
 			vdeallocate();		// end = begin
 			vallocate(recommend(n));
 			construct_at_end(n, u);
+		}
+		else
+		{
+			iterator	cur(begin());
+			size_type	old_size = size();
+
+			for (;cur != end(); ++cur)
+				*cur = u;
+			if (n < old_size)
+				this->destruct_at_end(this->__begin_ + n);
+			else
+				construct_at_end(n - old_size, u);
 		}
 	}
 
@@ -248,7 +278,7 @@ public:
 			if (range_size <= remained_cap)
 			{
 				size_type	d = end() - position;
-				if (range_size > d)		// why..?		//TODO: compare each if consruct order with std, consider why d.
+				if (range_size > d)		// why..?
 				{
 					construct_at_end(first + d, last);
 					range_size = d;
@@ -322,14 +352,14 @@ public:
 	{
 		// _LIBCPP_ASSERT(__first <= __last,
 		// "vector::erase(first, last) called with invalid range");
-		iterator	position	= first;
-		iterator	ret			= position;
+		iterator	pos_f		= first;
+		iterator	ret			= pos_f;
 
 		if (first != last)
 		{
-			for (iterator pos = last; pos != end(); ++pos, ++position)
-				*position = *pos;
-			destruct_at_end(position.base());
+			for (iterator pos_l = last; pos_l != end(); ++pos_l, ++pos_f)
+				*pos_f = *pos_l;
+			destruct_at_end(pos_f.base());
 		}
 
 		return ret;
@@ -339,13 +369,13 @@ public:
 	{
 		__swap(this->__begin_, x.__begin_);
 		__swap(this->__end_, x.__end_);
-		__swap(this->__cap_alloc_, x.__cap_alloc_);
+		__swap(this->__alloc_, x.__alloc_);
 		__swap(this->__size_, x.__size_);
 		__swap(this->__end_cap(), x.__end_cap());
 		__swap(this->__alloc(), x.__alloc());
 	}
 
-	void					clear() { destruct_at_end(this->__begin_); __size_ = 0; };
+	void					clear() { destruct_at_end(this->__begin_); };	//NOTE: destruct_at_end => param was destroyed too?
 
 //' allocator
 	allocator_type			get_allocator() const		{ return this->__alloc(); }
@@ -355,10 +385,8 @@ public:
 * %                              private
 *========================================================================**/
 private:
-	size_type&				__cap()							{ return this->__cap_alloc_.first; }		// const overloading?
-	const size_type&		__cap() const					{ return this->__cap_alloc_.first; }		// const overloading?
-	allocator_type&			__alloc()						{ return this->__cap_alloc_.second; }		// const overloading?
-	const allocator_type&	__alloc() const					{ return this->__cap_alloc_.second; }		// const overloading?
+	allocator_type&			__alloc()						{ return this->__alloc_; }		// const overloading?
+	const allocator_type&	__alloc() const					{ return this->__alloc_; }		// const overloading?
     pointer&				__end_cap()						{ return this->__end_cap_; }
     const pointer&			__end_cap() const				{ return this->__end_cap_; }
 	const_iterator			__make_iter(const_pointer p) const	{ return const_iterator(p); }
@@ -370,7 +398,7 @@ private:
 		if (n > max_size())
 			std::__throw_length_error("vector");
 		this->__begin_		= this->__alloc().allocate(n);
-		this->__cap()		= n;
+		// this->__cap()		= n;
 		this->__end_cap()	= this->__begin_ + n;
 		this->__size_		= 0;				// will be set at construct_at_end()
 		this->__end_		= this->__begin_;	// will be set at construct_at_end()
@@ -386,7 +414,7 @@ private:
 		}
 	}
 
-	size_type		recommend(size_type new_size)	//TODO
+	size_type		recommend(size_type new_size)
 	{
 		const size_type	ms	= max_size();
 		const size_type	cap	= capacity();
@@ -436,88 +464,86 @@ private:
 
 	void			destruct_at_end(pointer new_last)
 	{
-		// pointer	soon_to_be_end = __end_;
-
-		while (/*soon to be*/__end_ != new_last)
+		while (__end_ != new_last)
 		{
-			this->__alloc().destroy(--/*soon to be*/__end_);
+			this->__alloc().destroy(--__end_);
 			--__size_;
 		}
-		// __end_ = new_last;
 	}
 
 	void			realloc_and_move(size_type n, const value_type& x)
 	{
+		size_type	old_size	= size();
 
 		size_type	new_cap		= recommend(size() + n);
 		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer		pos			= new_begin + size();
+		pointer		new_pos		= new_begin + size();
 
 		for (size_type i = 0; i < n; i++)
-			this->__alloc().construct(pos + i, x);
-		--pos;
-		construct_backward(__alloc(), this->__begin_, this->__end_, pos);	//TODO: destroy src //NOTE:remove reference?
-		destruct_backward(__alloc(), this->__begin_, this->__end_);
+			this->__alloc().construct(new_pos + i, x);
+		--new_pos;
+		construct_backward(__alloc(), this->__begin_, this->__end_, new_pos);	//TODO: destroy src //NOTE:remove reference?
+		// destruct_backward(__alloc(), this->__begin_, this->__end_);
+		vdeallocate();
 
 		this->__begin_		= new_begin;
-		this->__size_		= size() + n;
+		this->__size_		= old_size + n;
 		this->__end_		= new_begin + size();
-		this->__cap()		= new_cap;
-		this->__end_cap()	= __begin_ + __cap();
+		this->__end_cap()	= __begin_ + new_cap;		//NOTE: size_type addition OK?
+		// this->__cap()		= new_cap;
+
+
 	}
 
 // public:
 	void			realloc_and_move(iterator position, iterator first, iterator last)	//check
 	{
+		size_type	old_size	= size();
+
 		difference_type		range_size	= unwrap_iter(last) - unwrap_iter(first);	//NOTE: distance
 		size_type			new_cap		= recommend(size() + range_size);
 		pointer				new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer				pos			= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
+		pointer				new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
 
 		for (size_type i = 0; first != last; i++, first++)
-			this->__alloc().construct(pos + i, *first);
-		--pos;
-		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), pos++);
-		construct_forward(__alloc(), unwrap_iter(position), this->__end_, pos + range_size);
-		//destruct_backward(Alloc &alloc, T *begin, T *end);
+			this->__alloc().construct(new_pos + i, *first);
+		--new_pos;
+		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), new_pos++);
+		construct_forward(__alloc(), unwrap_iter(position), this->__end_, new_pos + range_size);
+
+		vdeallocate();
 
 		this->__begin_		= new_begin;
-		this->__size_		= size() + range_size;
+		this->__size_		= old_size + range_size;
 		this->__end_		= new_begin + size();
-		this->__cap()		= new_cap;
-		this->__end_cap()	= __begin_ + __cap();
+		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
+		// this->__cap()		= new_cap;
 	}
 
 	pointer		realloc_and_move(iterator position, size_type n, const value_type& val)	//check
 	{
+		size_type	old_size	= size();
+
 		size_type	new_cap		= recommend(size() + n);
 		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer		pos			= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
+		pointer		new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
 
 
 		for (size_type i = 0; i < n; i++)
-			this->__alloc().construct(pos + i, val);
-		--pos;
-		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), pos++);
-		construct_forward(__alloc(), unwrap_iter(position), this->__end_, pos + n);
-		destruct_backward(__alloc(), this->__begin_, this->__end_);
+			this->__alloc().construct(new_pos + i, val);
+		--new_pos;
+		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), new_pos++);
+		construct_forward(__alloc(), unwrap_iter(position), this->__end_, new_pos + n);
+
+		vdeallocate();
 
 		this->__begin_		= new_begin;
-		this->__size_		= size() + n;
+		this->__size_		= old_size + n;
 		this->__end_		= new_begin + size();
-		this->__cap()		= new_cap;
-		this->__end_cap()	= __begin_ + __cap();
+		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
+		// this->__cap()		= new_cap;
 
-		return pos;
-	}
-
-	template <class U>
-	void	__swap(U& u1, U& u2)
-	{
-		U tmp = u1;
-
-		u1 = u2;
-		u2 = tmp;
+		return new_pos;
 	}
 };
 
