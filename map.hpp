@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/11 22:43:42 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/21 22:11:25 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 
 /**------------------------------------------------------------------------
  * 								//TODO
- *
+ * ! impl max_size()
  * ! checking CopyConstructible / DefaultConstructible
  * * how does work node_alloc -> allocator_type conversion?
  *

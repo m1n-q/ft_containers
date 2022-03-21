@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/12 03:34:07 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/21 23:22:47 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,17 @@
  *
  * ! const testcase
  * ! check LEAK
- * ! fix insert()
  * ! impl reserve()
+ *
  * ' constructors, operator=
  * ' swap()
+ *
+ * ' realloc_and_move(n, x) needed?
+ * ' unwrap_iter() needed?
+ *
+ * * insert(pos, first, last) => check done!
+ * * insert(pos, val) => check done!
+ * * insert(pos, n, val) => check done!
  * * pop_back() => check done!
  * * empty, size => check done!
  * * [], at, front, back => check done!
@@ -48,9 +55,8 @@
  *------------------------------------------------------------------------**/
 namespace ft
 {
-using std::allocator;	//DELETE
 
-template <typename T, class Allocator = allocator<T> >
+template <typename T, class Allocator = std::allocator<T> >
 class vector
 {
 /**========================================================================
@@ -81,7 +87,6 @@ protected:
 * @                           Constructors
 *========================================================================**/
 public:
-
 	explicit vector( const allocator_type& alloc = allocator_type() )
 					:__begin_		(NULL),
 					 __end_			(NULL),
@@ -272,36 +277,44 @@ public:
 	{
 		if (first < last)
 		{
-			size_type		range_size		= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
+			size_type		insert_size		= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
 			size_type		remained_cap	= (this->__end_cap() - this->__end_);
 
-			if (range_size <= remained_cap)
+			if (insert_size <= remained_cap)
 			{
-				size_type	d = end() - position;
-				if (range_size > d)		// why..?
-				{
-					construct_at_end(first + d, last);
-					range_size = d;
-				}
-				if (range_size > 0)
-				{
-					construct_at_end(position, position + d);
-					for (iterator p = position; first != last; ++p, ++first)
-						*p = *first;
-				}
+				ft::pair<iterator,
+						iterator>	copy_range;
+
+				copy_range.first	= position;
+				copy_range.second	= end();
+
+				construct_at_end(insert_size);
+				for (iterator new_end = end(); copy_range.second != copy_range.first;)		// copying backward from new_end
+					*(--new_end) = *(--copy_range.second);
+
+				for (iterator p = position; first != last; ++first, ++p)
+					*p = *first;
 			}
 			else
 				realloc_and_move(position, first, last);
 		}
 	}
-	void					insert(iterator position, size_type n, const value_type& val)
+	void					insert(iterator position, size_type n, const value_type& val)	//TODO: test
 	{
 		if (n > 0)
 		{
 			size_type remained_cap = (this->__end_cap() - this->__end_);
 			if (n <= remained_cap)
 			{
-				construct_at_end(position, end());
+				ft::pair<iterator,
+						iterator>	copy_range;
+
+				copy_range.first	= position;
+				copy_range.second	= end();
+
+				construct_at_end(n);
+				for (iterator new_end = end(); copy_range.second != copy_range.first;)		// copying backward from new_end
+					*(--new_end) = *(--copy_range.second);
 				for (iterator p = position; p != position + n; ++p)
 					*p = val;
 			}
@@ -424,7 +437,7 @@ private:
 		return std::max(2 * cap, new_size);
 	}
 
-	void			construct_at_end(size_type n)	//NOTE: unused?
+	void			construct_at_end(size_type n)
 	{
 		pointer	__pos_ 		= this->__end_;
 		pointer	__new_end_	= this->__end_ + n;
@@ -471,8 +484,11 @@ private:
 		}
 	}
 
-	void			realloc_and_move(size_type n, const value_type& x)
+	// reallocate, convert old_end to new_pos, construct at new_pos with val/
+	// copy construct source before that range.
+	void			realloc_and_move(size_type n, const value_type& val)
 	{
+		if (n == 0)	return;
 		size_type	old_size	= size();
 
 		size_type	new_cap		= recommend(size() + n);
@@ -480,24 +496,53 @@ private:
 		pointer		new_pos		= new_begin + size();
 
 		for (size_type i = 0; i < n; i++)
-			this->__alloc().construct(new_pos + i, x);
+			this->__alloc().construct(new_pos + i, val);
 		--new_pos;
 		construct_backward(__alloc(), this->__begin_, this->__end_, new_pos);	//TODO: destroy src //NOTE:remove reference?
-		// destruct_backward(__alloc(), this->__begin_, this->__end_);
+
 		vdeallocate();
 
 		this->__begin_		= new_begin;
 		this->__size_		= old_size + n;
 		this->__end_		= new_begin + size();
 		this->__end_cap()	= __begin_ + new_cap;		//NOTE: size_type addition OK?
-		// this->__cap()		= new_cap;
-
-
 	}
 
-// public:
+
+	// reallocate, convert position to reallocated one, construct at new_position with val.
+	// copy construct source before and after that range.
+	pointer		realloc_and_move(iterator position, size_type n, const value_type& val)
+	{
+		if (n == 0)	return unwrap_iter(position);
+		size_type	old_size	= size();
+
+		size_type	new_cap		= recommend(size() + n);
+		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
+		pointer		new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));	//NOTE: unwrap_iter needed?
+
+
+		for (size_type i = 0; i < n; i++)
+			this->__alloc().construct(new_pos + i, val);
+		--new_pos;
+		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), new_pos++);
+		construct_forward(__alloc(), unwrap_iter(position), this->__end_, new_pos + n);
+
+		vdeallocate();
+
+		this->__begin_		= new_begin;
+		this->__size_		= old_size + n;
+		this->__end_		= new_begin + size();
+		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
+
+		return new_pos;
+	}
+
+
+	// reallocate, convert position to reallocated one, construct at new_pos with (first, last]
+	// copy construct source before and after that range.
 	void			realloc_and_move(iterator position, iterator first, iterator last)	//check
 	{
+		if (first == last)	return;
 		size_type	old_size	= size();
 
 		difference_type		range_size	= unwrap_iter(last) - unwrap_iter(first);	//NOTE: distance
@@ -517,34 +562,9 @@ private:
 		this->__size_		= old_size + range_size;
 		this->__end_		= new_begin + size();
 		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
-		// this->__cap()		= new_cap;
 	}
 
-	pointer		realloc_and_move(iterator position, size_type n, const value_type& val)	//check
-	{
-		size_type	old_size	= size();
 
-		size_type	new_cap		= recommend(size() + n);
-		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer		new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
-
-
-		for (size_type i = 0; i < n; i++)
-			this->__alloc().construct(new_pos + i, val);
-		--new_pos;
-		construct_backward(__alloc(), this->__begin_, unwrap_iter(position), new_pos++);
-		construct_forward(__alloc(), unwrap_iter(position), this->__end_, new_pos + n);
-
-		vdeallocate();
-
-		this->__begin_		= new_begin;
-		this->__size_		= old_size + n;
-		this->__end_		= new_begin + size();
-		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
-		// this->__cap()		= new_cap;
-
-		return new_pos;
-	}
 };
 
 /**========================================================================
