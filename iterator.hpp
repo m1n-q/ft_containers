@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 01:18:36 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 02:20:39 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,14 @@ template <class Iter>       struct iterator_traits_base<Iter, true>
     typedef typename Iter::iterator_category	iterator_category;
 };
 
-
 template <class Iter> struct iterator_traits
-: iterator_traits_base<Iter, true > //TODO : is_convertible
-{
-
-};
+: iterator_traits_base
+    <
+    Iter,
+    is_convertible<typename Iter::iterator_category, input_iterator_tag>::value ||
+    is_convertible<typename Iter::iterator_category, output_iterator_tag>::value
+    >
+{};
 
 template <class T> struct iterator_traits<T*>
 {
