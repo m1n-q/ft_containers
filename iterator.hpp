@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/04 21:19:15 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 01:18:36 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,23 @@ namespace ft
 	struct bidirectional_iterator_tag	: public forward_iterator_tag       {};
 	struct random_access_iterator_tag	: public bidirectional_iterator_tag {};
 
-template <class Iter> struct iterator_traits
+template <class Iter, bool> struct iterator_traits_base {};
+template <class Iter>       struct iterator_traits_base<Iter, true>
 {
-	typedef typename Iter::difference_type		difference_type;
+    typedef typename Iter::difference_type		difference_type;
     typedef typename Iter::value_type			value_type;
     typedef typename Iter::pointer				pointer;
     typedef typename Iter::reference			reference;
     typedef typename Iter::iterator_category	iterator_category;
 };
+
+
+template <class Iter> struct iterator_traits
+: iterator_traits_base<Iter, true > //TODO : is_convertible
+{
+
+};
+
 template <class T> struct iterator_traits<T*>
 {
 	typedef ptrdiff_t					difference_type;
@@ -71,16 +80,6 @@ public:
     static const bool value = sizeof(test<T>(0,0,0,0,0)) == 1;
 };
 
-
-template <class T> struct has_iterator_category
-{
-private:
-    struct __two {char __lx; char __lxx;};
-    template <class U> static __two	test( ... );
-    template <class U> static char	test( typename U::iterator_category* = NULL );
-public:
-    static const bool value = sizeof(test<T>(nullptr)) == 1;
-};
 
 
 
@@ -247,27 +246,6 @@ void __advance(_InputIter& __i,
     for (; __n > 0; --__n)
         ++__i;
 }
-
-// template <class _BiDirIter>
-// void __advance(_BiDirIter& __i,
-//              typename iterator_traits<_BiDirIter>::difference_type __n, bidirectional_iterator_tag)
-// {
-//     if (__n >= 0)
-//         for (; __n > 0; --__n)
-//             ++__i;
-//     else
-//         for (; __n < 0; ++__n)
-//             --__i;
-// }
-
-// template <class _RandIter>
-// void __advance(_RandIter& __i,
-//              typename iterator_traits<_RandIter>::difference_type __n, random_access_iterator_tag)
-// {
-//    __i += __n;
-// }
-
-
 
 
 }

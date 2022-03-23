@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/21 23:22:47 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 00:01:30 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,16 @@
  *
  * ! const testcase
  * ! check LEAK
- * ! impl reserve()
  *
- * ' constructors, operator=
+ * @ checking constructors
+ * @ checking is_input_iterator (is_convertible) -> what is declval?
+ * ' operator=
  * ' swap()
  *
  * ' realloc_and_move(n, x) needed?
  * ' unwrap_iter() needed?
  *
+ * * impl reserve()	=> check done!
  * * insert(pos, first, last) => check done!
  * * insert(pos, val) => check done!
  * * insert(pos, n, val) => check done!
@@ -188,7 +190,7 @@ public:
 	size_type				max_size() const		{ return std::min<size_type>(std::numeric_limits<difference_type>::max(), this->__alloc().max_size()); }	//NOTE: min OK?
 	size_type				capacity() const		{ return static_cast<size_type>(__end_cap() - __begin_); }
 	bool					empty() const			{ return (this->__size_ == 0); }
-	void					reserve(size_type n);
+	void					reserve(size_type n)	{ if (n > capacity()) reserve_impl(n); }
 
 //' element access
 	reference				at(size_type n)			{ if (n >= size()) std::__throw_out_of_range("vector");	return (*this)[n]; }
@@ -505,7 +507,7 @@ private:
 		this->__begin_		= new_begin;
 		this->__size_		= old_size + n;
 		this->__end_		= new_begin + size();
-		this->__end_cap()	= __begin_ + new_cap;		//NOTE: size_type addition OK?
+		this->__end_cap()	= __begin_ + new_cap;
 	}
 
 
@@ -532,7 +534,7 @@ private:
 		this->__begin_		= new_begin;
 		this->__size_		= old_size + n;
 		this->__end_		= new_begin + size();
-		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
+		this->__end_cap()	= __begin_ + new_cap;
 
 		return new_pos;
 	}
@@ -561,7 +563,25 @@ private:
 		this->__begin_		= new_begin;
 		this->__size_		= old_size + range_size;
 		this->__end_		= new_begin + size();
-		this->__end_cap()	= __begin_ + new_cap;	//NOTE: size_type addition OK?
+		this->__end_cap()	= __begin_ + new_cap;
+	}
+
+
+	void			reserve_impl(size_type new_cap)	//check
+	{
+		size_type	old_size	= size();
+		pointer		new_begin	= __alloc().allocate(new_cap);
+		pointer		new_end		= new_begin + old_size;
+
+		construct_backward(__alloc(), this->__begin_, this->__end_, new_end-1);
+		// * new_end always points after last elem, except (begin == end). if b == e, won't be constructed.
+
+		vdeallocate();
+
+		this->__size_		= old_size;
+		this->__begin_		= new_begin;
+		this->__end_		= new_begin + size();
+		this->__end_cap()	= __begin_ + new_cap;
 	}
 
 

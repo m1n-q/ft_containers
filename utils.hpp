@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/21 21:43:15 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 00:51:43 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 #ifndef UTILS_HPP
 # define UTILS_HPP
 
+#include <cstdio> //DELETE
+
 template <class Alloc, class T>
 void construct_backward(Alloc& alloc, T* first, T* last, T* target)
 {
 
 	while (last != first)	// backward from target
 	{
-		alloc.construct(target, *--last);	//TODO: destroy src //NOTE:remove reference?
+		alloc.construct(target, *--last);
 		--target;
 	}
 }
@@ -28,9 +30,9 @@ void construct_backward(Alloc& alloc, T* first, T* last, T* target)
 template <class Alloc, class T>
 void construct_forward(Alloc& alloc, T* first, T* last, T* target)
 {
-	while (first != last)	// forward to target
+	while (first != last)	// forward from target
 	{
-		alloc.construct(target, *first++);	//TODO: destroy src //NOTE:remove reference?
+		alloc.construct(target, *first++);
 		target++;
 	}
 }

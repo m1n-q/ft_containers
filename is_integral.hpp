@@ -6,13 +6,14 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/14 17:30:51 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 02:16:59 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IS_INTEGRAL_HPP
 # define IS_INTEGRAL_HPP
 
+#include <stddef.h>
 namespace ft
 {
 template <class T> struct remove_const			{typedef T type;};
@@ -59,6 +60,32 @@ template <class T>	struct is_integral
 
 template <class T> struct is_pointer		: public false_type	{};
 template <class T> struct is_pointer<T*>	: public true_type	{};
+
+
+template <int> struct sfinaer { };
+template <class From, class To> struct is_convertible
+{
+private:
+	static From getFromType() {From tmp; return tmp;};
+	template <class T>
+	static int		test(...);
+	template <class T>
+	static char		test(sfinaer<sizeof(static_cast<T>(getFromType()))>* = NULL);
+
+public:
+	const static bool value = (sizeof(test<To>(0)) == 1);
+};
 }
 
 #endif
+
+	// ' immediate context, (즉 템플릿 | 함수의 선언부)에 유효하지 않은 (type | expression)이 필요.
+	// @ type conversion, static_cast<To>(From) 과 같은 expression 을 테스트할 필요가 있음.
+	// @ 혹은 implicit conversion
+
+	// * 1. type method	-> 가능한가;?
+	// * 2. expression method -> decltype(expression, return type)	... c++11
+	// * sizeof()...
+
+	//쉼표로 구분된 표현식 목록이며 유형은 목록의 마지막 표현식 유형과 동일합니다. 일반적으로 첫 번째 표현식이 유효한지(컴파일 가능, SFINAE 생각) 확인하는 데 사용되며, 두 번째는 decltype첫 번째 표현식이 유효한 경우 반환해야 함을 지정하는 데 사용됩니다.
+

@@ -1,70 +1,48 @@
+#include <__iterator/iterator_traits.h>
 #include <ios>
 #include <memory>
+#include <ostream>
 #include <vector>
+#include "is_integral.hpp"
+#include "iterator.hpp"
 #include "printer.hpp"
 #include "vector.hpp"
+
+class P {};
+class D : public P {};
+
+
 
 
 template<typename T,  template<typename, typename> class Vec>
 void	test_func()
 {
-	Vec<T, std::allocator<T> > myvec;
+	int arr[3] = { 1, 2, 3};
+	Vec<T, std::allocator<T> > myvec(arr, arr+3);
 	typename Vec<T, std::allocator<T> >::iterator it;
-	// myvec.push_back(1);
-	// myvec.push_back(2);
-	// myvec.push_back(3);
-	// myvec.push_back(4);
-
-	// myvec.push_back(4);
-	// myvec.push_back(4);
-	// myvec.push_back(4);
-	// myvec.pop_back();
-	// myvec.pop_back();
-	// myvec.pop_back();
 
 	print_vector(myvec);
 
-	// myvec.pop_back();
-	// myvec.pop_back();
-	// print_vector(myvec);
+	// * 부모 <- 자식 방향으로만 대입이 가능합니다. 자식은 부모의 정보를 모두 갖고 있지만, 반대는 아니니까.
+	// ft::output_iterator_tag o;
+	// ft::input_iterator_tag i;
+	// ft::forward_iterator_tag f;
+	// (void)static_cast<ft::input_iterator_tag>(f);
+	// (void)static_cast<ft::forward_iterator_tag>(i);
+	std::cout<< std::boolalpha <<
+	ft::is_convertible<ft::forward_iterator_tag, ft::input_iterator_tag>::value << std::endl;
 
-	//' where to insert
-	it = myvec.end();
 
-	// std::cout << std::boolalpha << (it + 4 == myvec.end()) << std::endl;
-	// '1 (val)
-		//@ OK
-	// typename Vec<T, std::allocator<T> >::iterator nit;
-	// nit = myvec.insert(it  , 42);
-	// print_vector(myvec);
-	// std::cout << "moved		? " << std::boolalpha << !(it == myvec.begin()) << std::endl;
-	// std::cout << "inserted	= " << *nit << std::endl;
-	// std::cout << "next		= " << *(nit+1) << std::endl << std::endl;
-
-	// '2 (nval)
-		//@ OK
-	// myvec.insert(it , 3, 99);
-	// print_vector(myvec);
-
-	// '3 (range)
-		//@ OK
-	Vec<T, std::allocator<T> > toInsert;
-	toInsert.push_back(7);
-	toInsert.push_back(77);
-	toInsert.push_back(777);
-	toInsert.push_back(7777);
-	toInsert.push_back(77777);
-
-	myvec.insert(it, toInsert.begin(), toInsert.end());
-	print_vector(myvec);
 }
 
 
 
 int main(int argc, char** argv)
 {
+
 	if (argc != 2)
 		return -1;
+
 	int input = atoi((argv[1]));
 	if (!input)
 	{
