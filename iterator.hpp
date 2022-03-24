@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 19:39:20 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 20:45:53 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,47 +18,55 @@
 
 #include "is_integral.hpp"
 #include "enable_if.hpp"
+
+/**----------------------------------------------------------------------------
+ * # => iterator_traits 어떤 구현으로 할지 고민중..
+ * # => is_input_iterator 등을 구현하는데에,
+ * # => iterator_traits<Iter> 는 사실 기본형이어도 괜찮긴함..
+ * # =>	cppreference 보면 no-members가 되도록 구현하는게 맞긴한듯 ㅎㅎ OK
+ *
+ * ! check wrap_iter (i -> ci / ci -> i)
+ * ! check reverse_iterator
+ *----------------------------------------------------------------------------*/
+
+ /**----------------------------------------------------------------------------
+ *
+ * @  template <class Iter>
+ * @  struct iterator_traits
+ * @  {
+ * @      typedef typename Iter::difference_type	difference_type;
+ * @      typedef typename Iter::value_type			value_type;
+ * @      typedef typename Iter::pointer			pointer;
+ * @      typedef typename Iter::reference			reference;
+ * @      typedef typename Iter::iterator_category	iterator_category;
+ * @  };
+ *
+ * ---------------------------------------------------------------------------*/
 namespace ft
 {
-	struct input_iterator_tag	{};
-	struct output_iterator_tag	{};
+	struct input_iterator_tag												{};
+	struct output_iterator_tag												{};
 	struct forward_iterator_tag			: public input_iterator_tag         {};
 	struct bidirectional_iterator_tag	: public forward_iterator_tag       {};
 	struct random_access_iterator_tag	: public bidirectional_iterator_tag {};
 
-/*
- @
- @  template <class Iter>
- @  struct iterator_traits
- @  {
- @      typedef typename Iter::difference_type		difference_type;
- @      typedef typename Iter::value_type			value_type;
- @      typedef typename Iter::pointer				pointer;
- @      typedef typename Iter::reference			reference;
- @      typedef typename Iter::iterator_category	iterator_category;
- @  };
- @
- */
+	template <class T>
+	struct __void_t { typedef void type; };
 
-template <class T>
-struct __void_t { typedef void type; };
-
-template <class T>
-struct has_iterator_typedefs
-{
-private:
-// public:
-    struct __two {char du; char mmy;};
-	//There is a generic one using an ellipsis that returns the false_type and a counterpart with more specific arguments to take precedence.
-    template <class U> static __two	test( ... );
-    template <class U> static char	test( typename __void_t<typename U::iterator_category>::type*   ,
-										  typename __void_t<typename U::difference_type>::type*     ,
-										  typename __void_t<typename U::value_type>::type*          ,
-										  typename __void_t<typename U::reference>::type*           ,   // * cannot point ref
-										  typename __void_t<typename U::pointer>::type*	            );
-public:
-    static const bool value = sizeof(test<T>(0,0,0,0,0)) == 1;
-};
+	template <class T>
+	struct has_iterator_typedefs
+	{
+	private:
+	    struct __two {char du; char mmy;};
+	    template <class U> static __two	test( ... );
+	    template <class U> static char	test( typename __void_t<typename U::iterator_category>::type*   ,
+											  typename __void_t<typename U::difference_type>::type*     ,
+											  typename __void_t<typename U::value_type>::type*          ,
+											  typename __void_t<typename U::reference>::type*           ,   // * cannot point ref
+											  typename __void_t<typename U::pointer>::type*	            );
+	public:
+	    static const bool value = sizeof(test<T>(0,0,0,0,0)) == 1;
+	};
 
 template <class T>
 struct has_iterator_category
@@ -86,7 +94,7 @@ template <class Iter>       struct iterator_traits_convertible_checker<Iter, tru
     typedef typename Iter::iterator_category	iterator_category;
 };
 
-// ' checking
+// ' check
 template <class Iter>
 struct iterator_traits_typedefs_checker<Iter, true>
 : iterator_traits_convertible_checker
@@ -131,52 +139,45 @@ public:
 /**========================================================================
 * '                              typedef
 *========================================================================**/
-	typedef T															iterator_type;
-	typedef typename iterator_traits<iterator_type>::difference_type	difference_type;
-    typedef typename iterator_traits<iterator_type>::value_type			value_type;
-    typedef typename iterator_traits<iterator_type>::pointer			pointer;
-    typedef typename iterator_traits<iterator_type>::reference			reference;
-    typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
+	typedef T														base_type;
+	typedef typename iterator_traits<base_type>::difference_type	difference_type;
+    typedef typename iterator_traits<base_type>::value_type			value_type;
+    typedef typename iterator_traits<base_type>::pointer			pointer;
+    typedef typename iterator_traits<base_type>::reference			reference;
+    typedef typename iterator_traits<base_type>::iterator_category	iterator_category;
 private:
-	iterator_type __i;
+	base_type __base;
 
 public:
 /**========================================================================
 * @                           Constructors
 *========================================================================**/
-	wrap_iter(void)					{ __i = NULL; }
-	wrap_iter(iterator_type it)		{ __i = it; };
-	wrap_iter(const wrap_iter& src)	{ __i = src.__i; };
+	wrap_iter()                     : __base()				{}
+	wrap_iter(base_type b)			: __base(b)				{};
+	wrap_iter(const wrap_iter& src) : __base(src.base())	{};
 
-	~wrap_iter()					{ };
-
-    //TODO: copy ctor
-    // template <class _Up> _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_IF_NODEBUG
-    // __wrap_iter(const __wrap_iter<_Up>& __u,
-    //     typename enable_if<is_convertible<_Up, iterator_type>::value>::type* = nullptr) _NOEXCEPT
-    //     : __i(__u.base())
+	~wrap_iter() {};
 
 /**========================================================================
 * *                            operators                                        //TODO: CHECK
 *========================================================================**/
-	reference	operator*() const						{ return *__i; }
-    pointer		operator->() const						{ return __i; }     //! //TODO
-    wrap_iter&	operator++()							{ ++__i; return *this; }
+	reference	operator*() const						{ return *__base; }
+    pointer		operator->() const						{ return __base; }     //! //TODO
+    wrap_iter&	operator++()							{ ++__base; return *this; }
     wrap_iter	operator++(int)							{ wrap_iter tmp(*this); ++(*this); return tmp; }
-    wrap_iter&	operator--()							{ --__i; return *this; }
+    wrap_iter&	operator--()							{ --__base; return *this; }
     wrap_iter	operator--(int)							{ wrap_iter tmp(*this); --(*this); return tmp; }
-    wrap_iter&	operator+=(difference_type n)			{  __i += n; return *this; }
+    wrap_iter&	operator+=(difference_type n)			{  __base += n; return *this; }
     wrap_iter	operator+ (difference_type n) const		{ wrap_iter tmp(*this); tmp += n; return tmp; }
     wrap_iter&	operator-=(difference_type n)			{ *this += -n; return *this; }
     wrap_iter	operator- (difference_type n) const		{ return (*this + (-n)); }
-    reference	operator[](difference_type n) const		{ return __i[n]; }
+    reference	operator[](difference_type n) const		{ return __base[n]; }
     template <class T1, class T2>
     friend bool operator==(const wrap_iter<T1>& x, const wrap_iter<T2>& y);
     template <class T1, class T2>
     friend bool operator!=(const wrap_iter<T1>& x, const wrap_iter<T2>& y);
 
-
-    iterator_type base() const  {return __i;}
+    base_type base() const  {return __base;}
 };
 
 template <class T1, class T2>
@@ -195,24 +196,8 @@ operator-(const wrap_iter<_Iter1>& __x, const wrap_iter<_Iter2>& __y) _NOEXCEPT
 { return __x.base() - __y.base(); }
 
 
-template <class T>  T unwrap_iter(T type)                                               { return type; }
-template <class T> typename wrap_iter<T>::iterator_type unwrap_iter(wrap_iter<T> it)    { return it.base(); }
-
-
-
-
-//# Requires:    A bidirectional iterator type.
-// #             Or a random-access iterator, if an operator that requires such a category of iterators is used.
-
-
-// template <class _Tp, class = void>
-// struct __is_stashing_iterator : false_type {};
-
-// template <class _Tp>
-// struct __is_stashing_iterator<_Tp, typename __void_t<typename _Tp::__stashing_iterator_tag>::type>
-//   : true_type {};
-
-
+template <class T>  T unwrap_iter(T type)											{ return type; }
+template <class T>	typename wrap_iter<T>::base_type unwrap_iter(wrap_iter<T> it)	{ return it.base(); }
 
 template <class Iter>
 class reverse_iterator
@@ -221,38 +206,39 @@ public:
 /**========================================================================
 * '                              typedef
 *========================================================================**/
-	typedef Iter														iterator_type;
-	typedef typename iterator_traits<iterator_type>::difference_type	difference_type;
-    typedef typename iterator_traits<iterator_type>::value_type			value_type;
-    typedef typename iterator_traits<iterator_type>::pointer			pointer;
-    typedef typename iterator_traits<iterator_type>::reference			reference;
-    typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
+	typedef Iter													base_type;
+	typedef typename iterator_traits<base_type>::difference_type	difference_type;
+    typedef typename iterator_traits<base_type>::value_type			value_type;
+    typedef typename iterator_traits<base_type>::pointer			pointer;
+    typedef typename iterator_traits<base_type>::reference			reference;
+    typedef typename iterator_traits<base_type>::iterator_category	iterator_category;
 private:
-	iterator_type   __i;
+	base_type   __base;
 public:
-    reverse_iterator() : __i() {}
-    explicit reverse_iterator(iterator_type __base) : __i(__base) {}
+    reverse_iterator()							: __base()				{}
+    explicit reverse_iterator(base_type b)		: __base(b)				{}
     template <class U>	// copy, type-cast constructor
-    reverse_iterator(reverse_iterator<U>& other) : __i(other.base()) {}	//NOTE: why template?
+    reverse_iterator(reverse_iterator<U>& other): __base(other.base())	{}	//NOTE: why template?
 
 public:
 /**========================================================================
 * *                            operators										//TODO: CHECK
 *========================================================================**/
-	reference	        operator*() const						{ Iter tmp(__i); return *(--tmp); }	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
-    pointer		        operator->() const						{ return (&operator*()); }          // ! check
-    reverse_iterator&	operator++()							{ --__i; return *this; }
-    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__i; return tmp; } // !
-    reverse_iterator&	operator--()							{ ++__i; return *this; }
-    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__i; return tmp; }	// !
-    reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(__i - n); }
-    reverse_iterator&	operator+=(difference_type n)			{ __i -= n; return *this; }
-    reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(__i + n); }
-    reverse_iterator&	operator-=(difference_type n)			{ __i += n; return *this; }
-    reference	        operator[](difference_type n) const		{ return *(*this + n); }
+	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
+	reference			operator*() const						{ Iter tmp(__base); return *(--tmp); }
+    pointer				operator->() const						{ return (&operator*()); }          // ! check
+    reverse_iterator	operator++()							{ --__base; return *this; }
+    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__base; return tmp; } // !
+    reverse_iterator&	operator--()							{ ++__base; return *this; }
+    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__base; return tmp; }	// !
+    reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(__base - n); }
+    reverse_iterator&	operator+=(difference_type n)			{ __base -= n; return *this; }
+    reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(__base + n); }
+    reverse_iterator&	operator-=(difference_type n)			{ __base += n; return *this; }
+    reference			operator[](difference_type n) const		{ return *(*this + n); }
 
 
-    iterator_type   base(void) const { return this->__i; }
+    base_type			base(void) const						{ return this->__base; }
 };
 
 template <class _Iter1, class _Iter2>
@@ -267,9 +253,10 @@ operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& 
 {
     return !(__x  == __y);
 }
+
 template <class InputIterator>
 typename iterator_traits<InputIterator>::difference_type
-distance(InputIterator __first, InputIterator __last)                 //NOTE: add randIter?
+distance(InputIterator __first, InputIterator __last, input_iterator_tag)                 //NOTE: add randIter?
 {
     typename iterator_traits<InputIterator>::difference_type __r(0);
     for (; __first != __last; ++__first)
@@ -277,6 +264,19 @@ distance(InputIterator __first, InputIterator __last)                 //NOTE: ad
     return __r;
 }
 
+template <class RandomIterator>
+typename iterator_traits<RandomIterator>::difference_type
+distance(RandomIterator __first, RandomIterator __last, random_access_iterator_tag)                 //NOTE: add randIter?
+{
+    return __last-__first;
+}
+
+template <class Iterator>
+typename iterator_traits<Iterator>::difference_type
+distance(Iterator __first, Iterator __last)
+{
+    return distance(__first, __last, typename iterator_traits<Iterator>::iterator_category());
+}
 
 template <class InputIterator>
 void __advance(InputIterator& __i,
@@ -288,27 +288,29 @@ void __advance(InputIterator& __i,
 
 
 
-
-template <class _Tp, class _Up, bool = has_iterator_category<iterator_traits<_Tp> >::value> // 여기서 has_iterator_category 검사를 해주면 , iterator_traits<Iter> 에서 has_typdefs 해줘야하남..
+template <class T, class U, bool = has_iterator_category<iterator_traits<T> >::value> // 여기서 has_iterator_category 검사를 해주면 , iterator_traits<Iter> 에서 has_typdefs 해줘야하남..
 struct has_iterator_category_convertible_to
-    : is_convertible<typename iterator_traits<_Tp>::iterator_category, _Up>
+: is_convertible<typename iterator_traits<T>::iterator_category, U>
 {};
 
-template <class _Tp, class _Up>
-struct has_iterator_category_convertible_to<_Tp, _Up, false> : false_type {};
+template <class T, class U>
+struct has_iterator_category_convertible_to<T, U, false> : false_type {};
 
+template <class T>
+struct is_input_iterator
+: public has_iterator_category_convertible_to<T, input_iterator_tag> {};
 
-template <class _Tp>
-struct is_input_iterator : public has_iterator_category_convertible_to<_Tp, input_iterator_tag> {};
+template <class T>
+struct is_forward_iterator
+: public has_iterator_category_convertible_to<T, forward_iterator_tag> {};
 
-template <class _Tp>
-struct is_forward_iterator : public has_iterator_category_convertible_to<_Tp, forward_iterator_tag> {};
+template <class T>
+struct is_bidirectional_iterator
+: public has_iterator_category_convertible_to<T, bidirectional_iterator_tag> {};
 
-template <class _Tp>
-struct is_bidirectional_iterator : public has_iterator_category_convertible_to<_Tp, bidirectional_iterator_tag> {};
-
-template <class _Tp>
-struct is_random_access_iterator : public has_iterator_category_convertible_to<_Tp, random_access_iterator_tag> {};
+template <class T>
+struct is_random_access_iterator
+: public has_iterator_category_convertible_to<T, random_access_iterator_tag> {};
 
 }
 

@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 19:47:33 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 21:58:53 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,35 +30,16 @@
  *
  *	@ ISO/IEC 14882:1998
  *
- *	* for the vector constructor
- *		template <class InputIterator>
- *		X(InputIterator f, InputIterator l, const Allocator& a = Allocator())
- *	* shall have the same effect as:
- *  '                ^^^^^^^^^^^
- *		X(static_cast<typename X::size_type>(f),
- *		  static_cast<typename X::value_type>(l),
- *		  a)
- *	* if InputIterator is an integral type.
- *  '                        ^^^^^^^^^^^^^
- *	* the member functions in the forms:
- *		template <class InputIterator>
- *		rt fx1(iterator p, InputIterator f, InputIterator l);	// such as insert()
- * 		template <class InputIterator>
- *		rt fx2(InputIterator f, InputIterator l);				// such as append(), assign()
- * 		template <class InputIterator>
- * 		rt fx3(iterator i1, iteraror i2, InputIterator f, InputIterator l);	// such as replace()
- * 	* shall have the same effect, respectively, as:
- *  '                ^^^^^^^^^^^
- *		fx1(p,
- *		    static_cast<typename X::size_type>(f),
- *		    static_cast<typename X::value_type>(l));
- *		fx2(static_cast<typename X::size_type>(f),
- *		    static_cast<typename X::value_type>(l));
- *		fx3(i1, i2,
- *		    static_cast<typename X::size_type>(f),
- *		    static_cast<typename X::value_type>(l));
- *	* if InputIterator is an integral type.
- *  '                        ^^^^^^^^^^^^^
+ * * [Note: This follows directly from the requirements in the Iterator Requirements Table.
+ * * Integral types cannot be iterators, so, if n1 and n2 are values of an integral type N,
+ * * the expression X(n1, n2) cannot possibly be interpreted as construction from a range of iterators.
+ * !                          ^^^^^^                   						        ^^^^^^^^^^^^^^^^^^^
+ * * It must be taken to mean the first constructor in the Iterator Requirements Table, not the second one.
+ * * If there is no conversion from N to X::value_type, then this is not a valid expression at all.
+ *
+ * * One way that sequence implementors can satisfy this requirement is to specialize the member template for every integral type.
+ * * Less cumbersome implementation techniques also exist. —end note]
+ *
  *--------------------------------------------------------------------------**/
 
 
@@ -69,18 +50,11 @@
  * ! const testcase
  * ! check LEAK
  *
- * @ checking constructors
- * # => iterator_traits 어떤 구현으로 할지 고민중..
- * # => is_input_iterator 등을 구현하는데에,
- * # => iterator_traits<Iter> 는 사실 기본형이어도 괜찮긴함..
- * # =>	cppreference 보면 no-members가 되도록 구현하는게 맞긴한듯 ㅎㅎ OK
- *
- * ' operator=
  * ' swap()
  *
- * ' realloc_and_move(n, x) needed?
- * ' unwrap_iter() needed?
- * * remove is_input_iterator => done!
+ * * operator=() => check_done!
+ * * enable_if<is_input_iterator> => recovery done!
+ * * constructors => check done!
  * * impl reserve()	=> check done!
  * * insert(pos, first, last) => check done!
  * * insert(pos, val) => check done!
@@ -153,13 +127,13 @@ public:
 					 }
 
 	template <class InputIterator>
-			//  vector( typename enable_if<is_input_iterator<InputIterator>::value,
-			//  		 InputIterator>::type first,
-			//  		 InputIterator last,
-			// 		 const allocator_type& alloc = allocator_type() )
-			 vector( InputIterator			first,
-			 		 InputIterator			last,
-					 const allocator_type&	alloc = allocator_type() )
+	 vector( typename enable_if<is_input_iterator<InputIterator>::value,
+	 		 InputIterator>::type first,
+	 		 InputIterator last,
+			 const allocator_type& alloc = allocator_type() )
+			//  vector( InputIterator			first,
+			//  		InputIterator			last,
+			// 			const allocator_type&	alloc = allocator_type() )
 					:__begin_		(NULL),
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
@@ -171,7 +145,7 @@ public:
 						{
 							vallocate(n);
 							for (;first!=last;++first)
-								push_back(*first);		//or construct_at_end?
+								push_back(*first);
 						}
 					 }
 
@@ -180,14 +154,14 @@ public:
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
 					 __size_		(0),
-					 __alloc_		(src.get_allocator())	// is it copy
+					 __alloc_		(src.get_allocator())
 					{
 						size_type n = src.size();
 						if (n > 0)
 						{
 							vallocate(n);
 							for (const_iterator it = src.begin();it != src.end(); ++it)
-								push_back(*it);		//or construct_at_end?
+								push_back(*it);
 						}
 					}
 
@@ -246,10 +220,10 @@ public:
 
 //' modifiers
 	template <class InputIterator>
-	// void assign(typename enable_if<is_input_iterator<InputIterator>::value,
-	// 				InputIterator>::type first,
-	// 				InputIterator last)
-	void assign(InputIterator first, InputIterator last)
+	void assign(typename enable_if<is_input_iterator<InputIterator>::value,
+				InputIterator>::type first,
+				InputIterator last)
+	// void assign(InputIterator first, InputIterator last)
 	{
 		size_type new_size = static_cast<size_type>(distance(first, last));
 		if (new_size > capacity())
@@ -308,17 +282,17 @@ public:
 	}
 
 	template <class InputIterator>
-    // void					insert( iterator position,
-	// 								typename enable_if<is_input_iterator<InputIterator>::value,
-	// 								InputIterator>::type first,
-	// 								InputIterator last)
-    void					insert( iterator		position,
-									InputIterator	first,
-									InputIterator	last)
+    void					insert( iterator				position,
+									typename enable_if<is_input_iterator<InputIterator>::value,
+									InputIterator>::type	first,
+									InputIterator			last)
+    // void					insert( iterator		position,
+	// 								InputIterator	first,
+	// 								InputIterator	last)
 	{
 		if (first < last)
 		{
-			size_type		insert_size		= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
+			size_type		insert_size		= distance(first, last);
 			size_type		remained_cap	= (this->__end_cap() - this->__end_);
 
 			if (insert_size <= remained_cap)
@@ -366,7 +340,7 @@ public:
 
 	iterator				insert(iterator position, const value_type& val)
 	{
-		pointer pos = this->__begin_ + (position - begin());
+		pointer pos = this->__begin_ + distance(begin(), position);
 		if (this->__end_ < this->__end_cap())
 		{
 			if (position == end())
@@ -385,7 +359,7 @@ public:
 		}
 		else
 			pos = realloc_and_move(position, 1, val);
-		return __make_iter(pos); //
+		return __make_iter(pos);
 
 	}
 
@@ -439,12 +413,12 @@ public:
 * %                              private
 *========================================================================**/
 private:
-	allocator_type&			__alloc()						{ return this->__alloc_; }		// const overloading?
-	const allocator_type&	__alloc() const					{ return this->__alloc_; }		// const overloading?
-    pointer&				__end_cap()						{ return this->__end_cap_; }
-    const pointer&			__end_cap() const				{ return this->__end_cap_; }
+	allocator_type&			__alloc()							{ return this->__alloc_; }
+	const allocator_type&	__alloc() const						{ return this->__alloc_; }
+    pointer&				__end_cap()							{ return this->__end_cap_; }
+    const pointer&			__end_cap() const					{ return this->__end_cap_; }
 	const_iterator			__make_iter(const_pointer p) const	{ return const_iterator(p); }
-	iterator				__make_iter(pointer p) 			{ return iterator(p); }
+	iterator				__make_iter(pointer p) 				{ return iterator(p); }
 
 
 	void			vallocate(size_type n)	// initial allocate for now
@@ -502,12 +476,15 @@ private:
 		this->__end_	= __new_end_;
 	}
 
-	void			construct_at_end(iterator first, iterator last)
+	template <class InputIterator>
+	void			construct_at_end(typename enable_if<is_input_iterator<InputIterator>::value,	//NOTE: forward OK?
+									InputIterator>::type	first,
+									InputIterator			last)
 	{
-		difference_type		__range_size_	= unwrap_iter(last) - unwrap_iter(first);		//NOTE: distance
+		difference_type		__range_size_	= distance(first, last);
 		pointer				__pos_ 			= this->__end_;
 		pointer				__new_end_		= this->__end_ + __range_size_;
-		pointer				__first_		= unwrap_iter(first);
+		const_pointer		__first_		= unwrap_iter(first);
 
 		for (; __pos_ != __new_end_; __pos_++, __first_++)
 			this->__alloc().construct(__pos_, *__first_);
@@ -539,7 +516,7 @@ private:
 		for (size_type i = 0; i < n; i++)
 			this->__alloc().construct(new_pos + i, val);
 		--new_pos;
-		construct_backward(__alloc(), this->__begin_, this->__end_, new_pos);	//TODO: destroy src //NOTE:remove reference?
+		construct_backward(__alloc(), this->__begin_, this->__end_, new_pos);
 
 		vdeallocate();
 
@@ -554,12 +531,12 @@ private:
 	// copy construct source before and after that range.
 	pointer		realloc_and_move(iterator position, size_type n, const value_type& val)
 	{
-		if (n == 0)	return unwrap_iter(position);
+		if (n == 0)				return unwrap_iter(position);
 		size_type	old_size	= size();
 
 		size_type	new_cap		= recommend(size() + n);
 		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer		new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));	//NOTE: unwrap_iter needed?
+		pointer		new_pos		= new_begin + distance(begin(), position);
 
 
 		for (size_type i = 0; i < n; i++)
@@ -581,15 +558,19 @@ private:
 
 	// reallocate, convert position to reallocated one, construct at new_pos with (first, last]
 	// copy construct source before and after that range.
-	void			realloc_and_move(iterator position, iterator first, iterator last)	//check
+	template <class InputIterator>
+	void			realloc_and_move(iterator				position,
+									 typename enable_if< is_input_iterator<InputIterator>::value,
+									 InputIterator>::type	first,
+									 InputIterator			last)
 	{
-		if (first == last)	return;
-		size_type	old_size	= size();
+		if (first == last)				return;
+		size_type	old_size			= size();
 
-		difference_type		range_size	= unwrap_iter(last) - unwrap_iter(first);	//NOTE: distance
+		difference_type		range_size	= distance(first, last);
 		size_type			new_cap		= recommend(size() + range_size);
 		pointer				new_begin	= __alloc().allocate(new_cap); //LEAKS
-		pointer				new_pos		= new_begin + (unwrap_iter(position) - unwrap_iter(begin()));
+		pointer				new_pos		= new_begin + distance(begin(), position);
 
 		for (size_type i = 0; first != last; i++, first++)
 			this->__alloc().construct(new_pos + i, *first);
