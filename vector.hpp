@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 00:01:30 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 19:47:33 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,41 @@
 # include "pair.hpp"
 # include "utils.hpp"
 
+/**-----------------------------------------------------------------------------
+ *
+ *	@ ISO/IEC 14882:1998
+ *
+ *	* for the vector constructor
+ *		template <class InputIterator>
+ *		X(InputIterator f, InputIterator l, const Allocator& a = Allocator())
+ *	* shall have the same effect as:
+ *  '                ^^^^^^^^^^^
+ *		X(static_cast<typename X::size_type>(f),
+ *		  static_cast<typename X::value_type>(l),
+ *		  a)
+ *	* if InputIterator is an integral type.
+ *  '                        ^^^^^^^^^^^^^
+ *	* the member functions in the forms:
+ *		template <class InputIterator>
+ *		rt fx1(iterator p, InputIterator f, InputIterator l);	// such as insert()
+ * 		template <class InputIterator>
+ *		rt fx2(InputIterator f, InputIterator l);				// such as append(), assign()
+ * 		template <class InputIterator>
+ * 		rt fx3(iterator i1, iteraror i2, InputIterator f, InputIterator l);	// such as replace()
+ * 	* shall have the same effect, respectively, as:
+ *  '                ^^^^^^^^^^^
+ *		fx1(p,
+ *		    static_cast<typename X::size_type>(f),
+ *		    static_cast<typename X::value_type>(l));
+ *		fx2(static_cast<typename X::size_type>(f),
+ *		    static_cast<typename X::value_type>(l));
+ *		fx3(i1, i2,
+ *		    static_cast<typename X::size_type>(f),
+ *		    static_cast<typename X::value_type>(l));
+ *	* if InputIterator is an integral type.
+ *  '                        ^^^^^^^^^^^^^
+ *--------------------------------------------------------------------------**/
+
 
 //TODO: ! check size_type | difference_type
 /**------------------------------------------------------------------------
@@ -35,13 +70,17 @@
  * ! check LEAK
  *
  * @ checking constructors
- * @ checking is_input_iterator (is_convertible) -> what is declval?
+ * # => iterator_traits 어떤 구현으로 할지 고민중..
+ * # => is_input_iterator 등을 구현하는데에,
+ * # => iterator_traits<Iter> 는 사실 기본형이어도 괜찮긴함..
+ * # =>	cppreference 보면 no-members가 되도록 구현하는게 맞긴한듯 ㅎㅎ OK
+ *
  * ' operator=
  * ' swap()
  *
  * ' realloc_and_move(n, x) needed?
  * ' unwrap_iter() needed?
- *
+ * * remove is_input_iterator => done!
  * * impl reserve()	=> check done!
  * * insert(pos, first, last) => check done!
  * * insert(pos, val) => check done!
@@ -114,10 +153,13 @@ public:
 					 }
 
 	template <class InputIterator>
-			 vector( typename enable_if<!is_integral<InputIterator>::value,
-			 		 InputIterator>::type first,
-			 		 InputIterator last,
-					 const allocator_type& alloc = allocator_type() )
+			//  vector( typename enable_if<is_input_iterator<InputIterator>::value,
+			//  		 InputIterator>::type first,
+			//  		 InputIterator last,
+			// 		 const allocator_type& alloc = allocator_type() )
+			 vector( InputIterator			first,
+			 		 InputIterator			last,
+					 const allocator_type&	alloc = allocator_type() )
 					:__begin_		(NULL),
 					 __end_			(NULL),
 					 __end_cap_		(NULL),
@@ -204,14 +246,14 @@ public:
 
 //' modifiers
 	template <class InputIterator>
-	void assign(typename enable_if<!is_integral<InputIterator>::value,
-					InputIterator>::type first,
-					InputIterator last)
+	// void assign(typename enable_if<is_input_iterator<InputIterator>::value,
+	// 				InputIterator>::type first,
+	// 				InputIterator last)
+	void assign(InputIterator first, InputIterator last)
 	{
 		size_type new_size = static_cast<size_type>(distance(first, last));
 		if (new_size > capacity())
 		{
-			// printf("CASE 1\n");
 			vdeallocate();		// end = begin
 			vallocate(recommend(new_size));
 			construct_at_end(first, last);
@@ -223,15 +265,9 @@ public:
 			for (;first != last && cur != end(); ++cur, ++first)
 				*cur = *first;
 			if (first == last)
-			{
-				// printf("CASE 2\n");
 				erase(cur, end());
-			}
 			else
-			{
-				// printf("CASE 3\n");
 				insert(end(), first, last);
-			}
 		}
 	}
 
@@ -272,10 +308,13 @@ public:
 	}
 
 	template <class InputIterator>
-    void					insert( iterator position,
-									typename enable_if<!is_integral<InputIterator>::value,
-									InputIterator>::type first,
-									InputIterator last)
+    // void					insert( iterator position,
+	// 								typename enable_if<is_input_iterator<InputIterator>::value,
+	// 								InputIterator>::type first,
+	// 								InputIterator last)
+    void					insert( iterator		position,
+									InputIterator	first,
+									InputIterator	last)
 	{
 		if (first < last)
 		{
@@ -477,9 +516,9 @@ private:
 		this->__end_	= __new_end_;
 	}
 
-	void			destruct_at_end(pointer new_last)
+	void			destruct_at_end(pointer new_end)
 	{
-		while (__end_ != new_last)
+		while (__end_ != new_end)
 		{
 			this->__alloc().destroy(--__end_);
 			--__size_;

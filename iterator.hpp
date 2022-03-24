@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 02:20:39 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 19:39:20 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,58 @@ namespace ft
 	struct bidirectional_iterator_tag	: public forward_iterator_tag       {};
 	struct random_access_iterator_tag	: public bidirectional_iterator_tag {};
 
-template <class Iter, bool> struct iterator_traits_base {};
-template <class Iter>       struct iterator_traits_base<Iter, true>
+/*
+ @
+ @  template <class Iter>
+ @  struct iterator_traits
+ @  {
+ @      typedef typename Iter::difference_type		difference_type;
+ @      typedef typename Iter::value_type			value_type;
+ @      typedef typename Iter::pointer				pointer;
+ @      typedef typename Iter::reference			reference;
+ @      typedef typename Iter::iterator_category	iterator_category;
+ @  };
+ @
+ */
+
+template <class T>
+struct __void_t { typedef void type; };
+
+template <class T>
+struct has_iterator_typedefs
+{
+private:
+// public:
+    struct __two {char du; char mmy;};
+	//There is a generic one using an ellipsis that returns the false_type and a counterpart with more specific arguments to take precedence.
+    template <class U> static __two	test( ... );
+    template <class U> static char	test( typename __void_t<typename U::iterator_category>::type*   ,
+										  typename __void_t<typename U::difference_type>::type*     ,
+										  typename __void_t<typename U::value_type>::type*          ,
+										  typename __void_t<typename U::reference>::type*           ,   // * cannot point ref
+										  typename __void_t<typename U::pointer>::type*	            );
+public:
+    static const bool value = sizeof(test<T>(0,0,0,0,0)) == 1;
+};
+
+template <class T>
+struct has_iterator_category
+{
+private:
+    struct __two {char du; char mmy;};
+    template <class U> static __two __test(...);
+    template <class U> static char  __test(typename U::iterator_category*);
+public:
+    static const bool value = sizeof(__test<T>(0)) == 1;
+};
+
+
+// ! fallbacks
+template <class Iter, bool> struct iterator_traits_convertible_checker {};
+template <class Iter, bool> struct iterator_traits_typedefs_checker    {};
+
+// @ impl
+template <class Iter>       struct iterator_traits_convertible_checker<Iter, true>
 {
     typedef typename Iter::difference_type		difference_type;
     typedef typename Iter::value_type			value_type;
@@ -36,12 +86,23 @@ template <class Iter>       struct iterator_traits_base<Iter, true>
     typedef typename Iter::iterator_category	iterator_category;
 };
 
-template <class Iter> struct iterator_traits
-: iterator_traits_base
+// ' checking
+template <class Iter>
+struct iterator_traits_typedefs_checker<Iter, true>
+: iterator_traits_convertible_checker
     <
-    Iter,
-    is_convertible<typename Iter::iterator_category, input_iterator_tag>::value ||
-    is_convertible<typename Iter::iterator_category, output_iterator_tag>::value
+        Iter,
+        is_convertible<typename Iter::iterator_category, input_iterator_tag>::value ||
+        is_convertible<typename Iter::iterator_category, output_iterator_tag>::value
+    >
+{};
+
+template <class Iter>
+struct  iterator_traits
+: iterator_traits_typedefs_checker
+    <
+        Iter,
+        has_iterator_typedefs<Iter>::value  // for "typename Iter::"
     >
 {};
 
@@ -63,32 +124,8 @@ template <class T> struct iterator_traits<const T*>
 };
 
 
-template <class T> struct __void_t
-{ typedef void type; };
-
-template <class T> struct has_iterator_typedefs	// check for iterator_traits<Iter>
-{
-// private:
-public:
-    struct __two {char dummy[2];};
-	//There is a generic one using an ellipsis that returns the false_type and a counterpart with more specific arguments to take precedence.
-    template <class U> static __two	test( ... );
-    template <class U> static char	test( typename __void_t<typename U::iterator_category>::type*   ,
-										  typename __void_t<typename U::difference_type>::type*     ,
-										  typename __void_t<typename U::value_type>::type*          ,
-										  typename __void_t<typename U::reference>::type*           ,
-										  typename __void_t<typename U::pointer>::type*	            );
-public:
-    static const bool value = sizeof(test<T>(0,0,0,0,0)) == 1;
-};
-
-
-
-
-
-
-
-template <class T> class wrap_iter	//NOTE: for vector (random_access_iterator, pointer)
+//NOTE: for vector (random_access_iterator, pointer)
+template <class T> class wrap_iter
 {
 public:
 /**========================================================================
@@ -230,25 +267,48 @@ operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& 
 {
     return !(__x  == __y);
 }
-template <class _InputIter>
-typename iterator_traits<_InputIter>::difference_type
-distance(_InputIter __first, _InputIter __last)                 //NOTE: add randIter?
+template <class InputIterator>
+typename iterator_traits<InputIterator>::difference_type
+distance(InputIterator __first, InputIterator __last)                 //NOTE: add randIter?
 {
-    typename iterator_traits<_InputIter>::difference_type __r(0);
+    typename iterator_traits<InputIterator>::difference_type __r(0);
     for (; __first != __last; ++__first)
         ++__r;
     return __r;
 }
 
 
-template <class _InputIter>
-void __advance(_InputIter& __i,
-             typename iterator_traits<_InputIter>::difference_type __n)//, input_iterator_tag)
+template <class InputIterator>
+void __advance(InputIterator& __i,
+             typename iterator_traits<InputIterator>::difference_type __n)//, input_iterator_tag)
 {
     for (; __n > 0; --__n)
         ++__i;
 }
 
+
+
+
+template <class _Tp, class _Up, bool = has_iterator_category<iterator_traits<_Tp> >::value> // 여기서 has_iterator_category 검사를 해주면 , iterator_traits<Iter> 에서 has_typdefs 해줘야하남..
+struct has_iterator_category_convertible_to
+    : is_convertible<typename iterator_traits<_Tp>::iterator_category, _Up>
+{};
+
+template <class _Tp, class _Up>
+struct has_iterator_category_convertible_to<_Tp, _Up, false> : false_type {};
+
+
+template <class _Tp>
+struct is_input_iterator : public has_iterator_category_convertible_to<_Tp, input_iterator_tag> {};
+
+template <class _Tp>
+struct is_forward_iterator : public has_iterator_category_convertible_to<_Tp, forward_iterator_tag> {};
+
+template <class _Tp>
+struct is_bidirectional_iterator : public has_iterator_category_convertible_to<_Tp, bidirectional_iterator_tag> {};
+
+template <class _Tp>
+struct is_random_access_iterator : public has_iterator_category_convertible_to<_Tp, random_access_iterator_tag> {};
 
 }
 
@@ -261,3 +321,11 @@ void __advance(_InputIter& __i,
 // and is commonly used as the fallback overload in SFINAE,
 // exploiting the lowest priority of the ellipsis conversion in overload resolution.
 // This syntax for variadic arguments was introduced in 1987 C++ without the comma before the ellipsis.
+
+
+// * 부모 <- 자식 방향으로만 대입이 가능합니다. 자식은 부모의 정보를 모두 갖고 있지만, 반대는 아니니까.
+// ft::output_iterator_tag o;
+// ft::input_iterator_tag i;
+// ft::forward_iterator_tag f;
+// (void)static_cast<ft::input_iterator_tag>(f);
+// (void)static_cast<ft::forward_iterator_tag>(i);

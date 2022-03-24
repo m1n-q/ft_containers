@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 00:51:43 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 19:41:15 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #ifndef UTILS_HPP
 # define UTILS_HPP
 
-#include <cstdio> //DELETE
+//TODO: check advance, distance
 
 template <class Alloc, class T>
 void construct_backward(Alloc& alloc, T* first, T* last, T* target)

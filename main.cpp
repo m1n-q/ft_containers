@@ -3,6 +3,7 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include "enable_if.hpp"
 #include "is_integral.hpp"
 #include "iterator.hpp"
 #include "printer.hpp"
@@ -10,7 +11,6 @@
 
 class P {};
 class D : public P {};
-
 
 
 
@@ -23,14 +23,10 @@ void	test_func()
 
 	print_vector(myvec);
 
-	// * 부모 <- 자식 방향으로만 대입이 가능합니다. 자식은 부모의 정보를 모두 갖고 있지만, 반대는 아니니까.
-	// ft::output_iterator_tag o;
-	// ft::input_iterator_tag i;
-	// ft::forward_iterator_tag f;
-	// (void)static_cast<ft::input_iterator_tag>(f);
-	// (void)static_cast<ft::forward_iterator_tag>(i);
-	std::cout<< std::boolalpha <<
-	ft::is_convertible<ft::forward_iterator_tag, ft::input_iterator_tag>::value << std::endl;
+
+
+	// std:: cout << ft::has_iterator_typedefs<ft::iterator_traits<int> >::value << std::endl;
+
 
 
 }
@@ -40,6 +36,7 @@ void	test_func()
 int main(int argc, char** argv)
 {
 
+	std::cout<< std::boolalpha;
 	if (argc != 2)
 		return -1;
 

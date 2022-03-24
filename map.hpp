@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/21 22:11:25 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 17:50:06 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ public:
 	class value_compare
         : public std::binary_function<value_type, value_type, bool>
     {
+		// ! Of course, for the implementation of map::value_compare, the keyword friend is allowed.
         friend class map;	// why friends?
     protected:
         key_compare		comp;

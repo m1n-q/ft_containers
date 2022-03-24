@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 02:16:59 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 17:13:22 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,14 @@
 #include <stddef.h>
 namespace ft
 {
-template <class T> struct remove_const			{typedef T type;};
-template <class T> struct remove_const<const T>	{typedef T type;};
+template <class T> struct remove_const					{typedef T type;};
+template <class T> struct remove_const<const T>			{typedef T type;};
 
 template <class T> struct remove_volatile				{typedef T type;};
 template <class T> struct remove_volatile<volatile T>	{typedef T type;};
 
 template <class T> struct remove_cv
 {typedef typename remove_volatile<typename remove_const<T>::type>::type type;};
-
 
 template <class T, T v> struct __base_type
 {
@@ -79,13 +78,13 @@ public:
 
 #endif
 
-	// ' immediate context, (즉 템플릿 | 함수의 선언부)에 유효하지 않은 (type | expression)이 필요.
-	// @ type conversion, static_cast<To>(From) 과 같은 expression 을 테스트할 필요가 있음.
-	// @ 혹은 implicit conversion
+// ' immediate context, (즉 템플릿 | 함수의 선언부)에 유효하지 않은 (type | expression)이 필요.
+// @ type conversion, static_cast<To>(From) 과 같은 expression 을 테스트할 필요가 있음.
+// @ 혹은 implicit conversion
 
-	// * 1. type method	-> 가능한가;?
-	// * 2. expression method -> decltype(expression, return type)	... c++11
-	// * sizeof()...
+// * 1. type method			->	가능한가;?
+// * 2. expression method	-> 	1) decltype(expression, return type)	... c++11
+// * 							2) sizeof()...
 
-	//쉼표로 구분된 표현식 목록이며 유형은 목록의 마지막 표현식 유형과 동일합니다. 일반적으로 첫 번째 표현식이 유효한지(컴파일 가능, SFINAE 생각) 확인하는 데 사용되며, 두 번째는 decltype첫 번째 표현식이 유효한 경우 반환해야 함을 지정하는 데 사용됩니다.
+//쉼표로 구분된 표현식 목록이며 유형은 목록의 마지막 표현식 유형과 동일합니다. 일반적으로 첫 번째 표현식이 유효한지(컴파일 가능, SFINAE 생각) 확인하는 데 사용되며, 두 번째는 decltype첫 번째 표현식이 유효한 경우 반환해야 함을 지정하는 데 사용됩니다.
 
