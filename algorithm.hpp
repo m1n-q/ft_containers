@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 17:55:15 by mishin            #+#    #+#             */
-/*   Updated: 2022/02/04 16:37:19 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 02:31:22 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ namespace ft
 			++first1; ++first2;
 		}
 		return (first2 != last2);						// iter1 is shorter than iter2
+														// if equal -> false
 	}
 
     // custom (2)
@@ -75,7 +76,8 @@ namespace ft
 			else if	(comp(*first1, *first2))	return true;
 			++first1; ++first2;
 		}
-		return (first2 != last2);						// iter1 is shorter than iter2
-	}	// bool mycomp (char c1, char c2)	{ return std::tolower(c1)<std::tolower(c2); }
+		return (first2 != last2);								// iter1 is shorter than iter2
+																// if equal -> false
+	}
 }
 #endif

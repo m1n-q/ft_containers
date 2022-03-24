@@ -6,13 +6,12 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/26 15:42:34 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/05 23:45:26 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 02:59:25 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PAIR_HPP
 # define PAIR_HPP
-# include <typeinfo> // DELETE
 namespace ft
 {
 	template <class T1, class T2> struct pair

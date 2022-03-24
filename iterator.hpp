@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 22:20:58 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 02:18:42 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
  *
  * ! check wrap_iter (i -> ci / ci -> i)
  * ! check reverse_iterator
+ * ! check operators
  *----------------------------------------------------------------------------*/
 
  /**----------------------------------------------------------------------------
@@ -110,7 +111,7 @@ struct  iterator_traits
 : iterator_traits_typedefs_checker
     <
         Iter,
-        has_iterator_typedefs<Iter>::value  // for "typename Iter::"
+        has_iterator_typedefs<Iter>::value  // check for "typename Iter::"
     >
 {};
 

@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 17:50:06 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 03:00:28 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,15 @@
 # include "iterator.hpp"
 # include "tree.hpp"
 # include "tree_iter.hpp"
+# include "algorithm.hpp"
 
 /**------------------------------------------------------------------------
  * 								//TODO
  * ! impl max_size()
- * ! checking CopyConstructible / DefaultConstructible
- * * how does work node_alloc -> allocator_type conversion?
+ *  checking CopyConstructible / DefaultConstructible ?
  *
+ * ! map_iter operators
+ * !!!!!!! check complexity, perfomance
  *------------------------------------------------------------------------**/
 
 
@@ -234,6 +236,47 @@ public:
 	allocator_type						get_allocator() const						{ return tree.get_allocator(); };
 
 };
+
+/**========================================================================
+* *                        relational-operators
+*========================================================================**/
+template <class Key, class T, class Compare, class Alloc>
+bool operator== (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)
+{
+	return	lhs.size() == rhs.size() &&
+			equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<  (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)
+{
+	return lexicographical_compare( lhs.begin(), lhs.end(),
+									rhs.begin(), rhs.end() );
+}
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator!= (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)	{ return !(lhs == rhs); }
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>  (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)	{ return rhs < lhs; }
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator<= (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)	{ return !(lhs > rhs); }
+
+template <class Key, class T, class Compare, class Alloc>
+bool operator>= (const map<Key, T, Compare, Alloc>& lhs,
+				 const map<Key, T, Compare, Alloc>& rhs)	{ return !(lhs < rhs); }
+/**========================================================================
+* #                         non-member functions
+*========================================================================**/
+template <class Key, class T, class Compare, class Alloc>
+void	swap(map<Key, T, Compare, Alloc>& x,
+			 map<Key, T, Compare, Alloc>& y)				{ x.swap(y); }
 
 }
 #endif

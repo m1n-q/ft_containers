@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/11 20:36:48 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 02:37:20 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <cstdio>
 #include <string>
 #include "tree_iter.hpp"
-#include "tmp.hpp"
 #include "utils.hpp"
 #include "pair.hpp"
 

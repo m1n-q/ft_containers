@@ -13,6 +13,12 @@
 #include <chrono>
 # define START	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 # define END	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();std::cout<< "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+
+
+#include <map>
+#include "map.hpp"
+
+
 class P {};
 class D : public P {};
 
@@ -68,6 +74,7 @@ int main(int argc, char** argv)
 		print_header(input);
 		test_func<int, ft::vector>();
 	}
+
 
 	system("leaks a.out");
 
