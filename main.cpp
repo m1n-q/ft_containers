@@ -3,57 +3,43 @@
 #include <memory>
 #include <ostream>
 #include <vector>
+#include <forward_list>
 #include "enable_if.hpp"
 #include "is_integral.hpp"
 #include "iterator.hpp"
 #include "printer.hpp"
 #include "vector.hpp"
 
+#include <chrono>
+# define START	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+# define END	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();std::cout<< "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 class P {};
 class D : public P {};
+
+struct FI {
+	typedef ptrdiff_t					difference_type;
+    typedef int							value_type;
+    typedef int*						pointer;
+    typedef int&						reference;
+    typedef ft::output_iterator_tag	iterator_category;
+};
+
 
 
 
 template<typename T,  template<typename, typename> class Vec>
 void	test_func()
 {
-	typename Vec<T, std::allocator<T> >::iterator it;
-	int arr[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-	Vec<T, std::allocator<T> > myvec(arr, arr + 6);
-	Vec<T, std::allocator<T> > myvec1;
-	Vec<T, std::allocator<T> > myvec2(myvec.begin(), myvec.end());
-	Vec<T, std::allocator<T> > myvec3(myvec2);
-	Vec<T, std::allocator<T> > myvec4(4, 42);
-	Vec<T, std::allocator<T> > myvec_e;
+	std::cout << std::boolalpha;
+	typedef	Vec<T, std::allocator<T> >							vector;
+	typedef	typename Vec<T, std::allocator<T> >::iterator		iterator;
+	// typedef	typename Vec<T, std::allocator<T> >::const_iterator	const_iterator;
 
-	print_vector(myvec);
-	print_vector(myvec1);
-	print_vector(myvec2);
-	print_vector(myvec3);
-	print_vector(myvec4);
+	std::cout << typeid(vector).name() << std::endl << std::endl;
 
-	std::cout << "===========after assign=============" << std::endl;
-	myvec = myvec1 = myvec2;
-	myvec3 = myvec4;
-
-	print_vector(myvec);
-	print_vector(myvec1);
-	print_vector(myvec2);
-	print_vector(myvec3);
-	print_vector(myvec4);
-	print_vector(myvec_e);
-	std::cout << "===========after assign2=============" << std::endl;
-	myvec_e = myvec = myvec1 = myvec2 = myvec3 = myvec4;
-	print_vector(myvec);
-	print_vector(myvec1);
-	print_vector(myvec2);
-	print_vector(myvec3);
-	print_vector(myvec4);
-	print_vector(myvec_e);
-
-
-
-	// std:: cout << ft::has_iterator_typedefs<ft::iterator_traits<int> >::value << std::endl;
+	iterator it;
+	vector	myvec;
+	const vector empty;
 
 
 
@@ -71,8 +57,11 @@ int main(int argc, char** argv)
 	int input = atoi((argv[1]));
 	if (!input)
 	{
+
+
 		print_header(input);
 		test_func<int, std::vector>();
+
 	}
 	else
 	{
@@ -81,4 +70,5 @@ int main(int argc, char** argv)
 	}
 
 	system("leaks a.out");
+
 }

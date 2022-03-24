@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 20:45:53 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/24 22:20:58 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ namespace ft
 	struct input_iterator_tag												{};
 	struct output_iterator_tag												{};
 	struct forward_iterator_tag			: public input_iterator_tag         {};
-	struct bidirectional_iterator_tag	: public forward_iterator_tag       {};
+	struct bidirectional_iterator_tag	: public forward_iterator_tag       {}; //NOTE: compatible with std? (ex. vector(std::cont.begin(), std::cont.end()))
 	struct random_access_iterator_tag	: public bidirectional_iterator_tag {};
 
 	template <class T>

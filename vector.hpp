@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 21:58:53 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/25 02:16:28 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,16 +43,15 @@
  *--------------------------------------------------------------------------**/
 
 
-//TODO: ! check size_type | difference_type
+
 /**------------------------------------------------------------------------
  * 								//TODO
  *
  * ! const testcase
- * ! check LEAK
  *
- * ' swap()
- *
- * * operator=() => check_done!
+ * * LEAK => check done!
+ * * swap() => check done!
+ * * operator=() => check done!
  * * enable_if<is_input_iterator> => recovery done!
  * * constructors => check done!
  * * impl reserve()	=> check done!
@@ -88,7 +87,7 @@ public:
     typedef typename allocator_type::const_reference	const_reference;
     typedef wrap_iter<pointer>							iterator;
     typedef wrap_iter<const_pointer>					const_iterator;
-    typedef ft::reverse_iterator<iterator>				reverse_iterator;		//TODO: test
+    typedef ft::reverse_iterator<iterator>				reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>		const_reverse_iterator;
 
 
@@ -196,13 +195,13 @@ public:
 	iterator               end()					{ return __make_iter(this->__end_); }
 	const_iterator         end() const				{ return __make_iter(this->__end_); }
 
-	reverse_iterator       rbegin()					{ return reverse_iterator(end()); }				// TODO: test. think
+	reverse_iterator       rbegin()					{ return reverse_iterator(end()); }
 	const_reverse_iterator rbegin() const			{ return const_reverse_iterator(end()); }
 	reverse_iterator       rend()					{ return reverse_iterator(begin()); }
 	const_reverse_iterator rend() const				{ return const_reverse_iterator(begin()); }
 
 //' capacity
-	size_type				size() const			{ return this->__size_; }		//Returns the number of elements in the vector. This is the number of actual objects held in the vector, which is not necessarily equal to its storage capacity.
+	size_type				size() const			{ return this->__size_; }
 	size_type				max_size() const		{ return std::min<size_type>(std::numeric_limits<difference_type>::max(), this->__alloc().max_size()); }	//NOTE: min OK?
 	size_type				capacity() const		{ return static_cast<size_type>(__end_cap() - __begin_); }
 	bool					empty() const			{ return (this->__size_ == 0); }
@@ -215,7 +214,7 @@ public:
 	reference				front()					{ return *(this->__begin_); }
 	const_reference			front() const			{ return *(this->__begin_); }
 
-	reference				back()					{ return *(this->__end_ - 1); }	// __size_ - 1 ?
+	reference				back()					{ return *(this->__end_ - 1); }
 	const_reference			back() const			{ return *(this->__end_ - 1); }
 
 //' modifiers
@@ -314,11 +313,11 @@ public:
 				realloc_and_move(position, first, last);
 		}
 	}
-	void					insert(iterator position, size_type n, const value_type& val)	//TODO: test
+	void					insert(iterator position, size_type n, const value_type& val)
 	{
 		if (n > 0)
 		{
-			size_type remained_cap = (this->__end_cap() - this->__end_);
+			size_type	remained_cap = (this->__end_cap() - this->__end_);
 			if (n <= remained_cap)
 			{
 				ft::pair<iterator,
@@ -403,7 +402,7 @@ public:
 		__swap(this->__alloc(), x.__alloc());
 	}
 
-	void					clear() { destruct_at_end(this->__begin_); };	//NOTE: destruct_at_end => param was destroyed too?
+	void					clear() { destruct_at_end(this->__begin_); };
 
 //' allocator
 	allocator_type			get_allocator() const		{ return this->__alloc(); }
@@ -510,7 +509,7 @@ private:
 		size_type	old_size	= size();
 
 		size_type	new_cap		= recommend(size() + n);
-		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
+		pointer		new_begin	= __alloc().allocate(new_cap);
 		pointer		new_pos		= new_begin + size();
 
 		for (size_type i = 0; i < n; i++)
@@ -535,7 +534,7 @@ private:
 		size_type	old_size	= size();
 
 		size_type	new_cap		= recommend(size() + n);
-		pointer		new_begin	= __alloc().allocate(new_cap); //LEAKS
+		pointer		new_begin	= __alloc().allocate(new_cap);
 		pointer		new_pos		= new_begin + distance(begin(), position);
 
 
@@ -569,7 +568,7 @@ private:
 
 		difference_type		range_size	= distance(first, last);
 		size_type			new_cap		= recommend(size() + range_size);
-		pointer				new_begin	= __alloc().allocate(new_cap); //LEAKS
+		pointer				new_begin	= __alloc().allocate(new_cap);
 		pointer				new_pos		= new_begin + distance(begin(), position);
 
 		for (size_type i = 0; first != last; i++, first++)
