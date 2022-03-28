@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 17:41:09 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 17:46:23 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,14 @@ public:
 		return *this;
 	}
 
-	reference		operator*() const		{ return ptr->val; }
-	pointer			operator->() const		{ return &(ptr->val); }
+	// reference		operator*() const		{ return ptr->val; }
+	// pointer			operator->() const		{ return &(ptr->val); }
 
-    tree_iterator&	operator++()  			{ ptr = _next(ptr); return *this; }
-    tree_iterator	operator++(int)			{ tree_iterator t(*this); ++(*this); return t;}
+    // tree_iterator&	operator++()  			{ ptr = _next(ptr); return *this; }
+    // tree_iterator	operator++(int)			{ tree_iterator t(*this); ++(*this); return t;}
 
-    tree_iterator&	operator--()			{ ptr = _prev(ptr); return *this; }
-    tree_iterator	operator--(int)			{ tree_iterator t(*this); --(*this); return t;}
+    // tree_iterator&	operator--()			{ ptr = _prev(ptr); return *this; }
+    // tree_iterator	operator--(int)			{ tree_iterator t(*this); --(*this); return t;}
 };
 
 template <class _Node, class _DiffType>
@@ -109,14 +109,14 @@ public:
 		return *this;
 	}
 
-	reference		        operator*() const		{ return ptr->val; }
-	pointer			        operator->() const		{ return &(ptr->val); }
+	// reference		        operator*() const		{ return ptr->val; }
+	// pointer			        operator->() const		{ return &(ptr->val); }
 
-    tree_const_iterator&	operator++()    		{ ptr = _next(ptr); return *this; }
-    tree_const_iterator	    operator++(int)			{ tree_const_iterator t(*this); ++(*this); return t;}
+    // tree_const_iterator&	operator++()    		{ ptr = _next(ptr); return *this; }
+    // tree_const_iterator	    operator++(int)			{ tree_const_iterator t(*this); ++(*this); return t;}
 
-    tree_const_iterator&	operator--()	    	{ ptr = _prev(ptr); return *this; }
-    tree_const_iterator	    operator--(int)			{ tree_const_iterator t(*this); --(*this); return t;}
+    // tree_const_iterator&	operator--()	    	{ ptr = _prev(ptr); return *this; }
+    // tree_const_iterator	    operator--(int)			{ tree_const_iterator t(*this); --(*this); return t;}
 };
 
 
