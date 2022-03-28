@@ -1,4 +1,5 @@
 #include <__iterator/iterator_traits.h>
+#include <__tree>
 #include <ios>
 #include <memory>
 #include <ostream>
@@ -34,32 +35,41 @@ struct FI {
 
 
 
-template<typename T,  template<typename, typename> class Vec>
+template<typename K,
+		 typename V,
+		 template <typename, typename> class P,
+		 template<typename, typename, typename, typename> class Map>
 void	test_func()
 {
+	typedef P<const K, V>					PAIR;
+	typedef Map<
+					K,
+					V,
+					std::less<K>,
+					std::allocator<PAIR>
+				>							MAP;
 
-	typedef Vec<T, std::allocator<T> >		VEC;
-	typedef typename VEC::iterator			ITER;
-	typedef typename VEC::const_iterator	CITER;
+	typedef typename MAP::iterator			ITER;
+	typedef typename MAP::const_iterator	CITER;
 
-	VEC				nvec;
-	ITER			tmp;
-	CITER			tmp2;
-	(void)tmp;(void)tmp2;
+	MAP		m;
+	ITER	tmp1;
+	CITER	tmp2;
+
+	(void)tmp1; (void)tmp2;
+
+	m.insert(PAIR('a', 42));
+	m.insert(PAIR('b', 42));
+	m.insert(PAIR('c', 42));
+	ITER	it(m.begin());
+	CITER	cit(it);
+	// ITER	it2(cit);
+
+	std::cout << (*it++).first << std::endl;
+	std::cout << (*it).first << std::endl;
+	std::cout << (*--it).first << std::endl;
 
 
-	nvec.push_back("first");
-	nvec.push_back("second");
-	// nvec.push_back("");
-	// nvec.push_back();
-	// nvec.push_back();
-
-	ITER			it(nvec.begin());
-	CITER			cit(it);
-
-	// std::cout << ( (cit <= it) ) << std::endl;
-
-	std::cout << cit[1].size() << std::endl;
 
 }
 
@@ -75,19 +85,15 @@ int main(int argc, char** argv)
 	int input = atoi((argv[1]));
 	if (!input)
 	{
-
-
 		print_header(input);
-		test_func<std::string, std::vector>();
+		test_func<char, int, std::pair, std::map>();
 
 	}
 	else
 	{
 		print_header(input);
-		test_func<std::string, ft::vector>();
+		test_func<char, int, ft::pair, ft::map>();
 	}
-
-
 	system("leaks a.out");
 
 }

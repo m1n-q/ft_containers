@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 12:48:18 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 16:30:18 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,6 @@ public:
     typedef _DiffType									difference_type;
     typedef const value_type&							reference;
     typedef const value_type*				    		pointer;
-
 
     typedef tree_iterator<node_type, difference_type>   non_const_iterator;
 

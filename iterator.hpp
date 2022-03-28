@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 15:54:29 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 15:56:59 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,34 +232,34 @@ operator+(typename wrap_iter<T1>::difference_type n, wrap_iter<T1> x)
 
 template <class InputIterator>
 typename iterator_traits<InputIterator>::difference_type
-distance(InputIterator __first, InputIterator __last, input_iterator_tag)                 //NOTE: add randIter?
+distance(InputIterator first, InputIterator last, input_iterator_tag)                 //NOTE: add randIter?
 {
-    typename iterator_traits<InputIterator>::difference_type __r(0);
-    for (; __first != __last; ++__first)
-        ++__r;
-    return __r;
+    typename iterator_traits<InputIterator>::difference_type    ret(0);
+    for (; first != last; ++first)
+        ++ret;
+    return ret;
 }
 
 template <class RandomIterator>
 typename iterator_traits<RandomIterator>::difference_type
-distance(RandomIterator __first, RandomIterator __last, random_access_iterator_tag)                 //NOTE: add randIter?
+distance(RandomIterator first, RandomIterator last, random_access_iterator_tag)                 //NOTE: add randIter?
 {
-    return __last-__first;
+    return last - first;
 }
 
 template <class Iterator>
 typename iterator_traits<Iterator>::difference_type
-distance(Iterator __first, Iterator __last)
+distance(Iterator first, Iterator last)
 {
-    return distance(__first, __last, typename iterator_traits<Iterator>::iterator_category());
+    return distance(first, last, typename iterator_traits<Iterator>::iterator_category());
 }
 
 template <class InputIterator>
-void __advance(InputIterator& __i,
-             typename iterator_traits<InputIterator>::difference_type __n)//, input_iterator_tag)
+void advance(InputIterator& i,
+             typename iterator_traits<InputIterator>::difference_type n)//, input_iterator_tag)
 {
-    for (; __n > 0; --__n)
-        ++__i;
+    for (; n > 0; --n)
+        ++i;
 }
 
 
