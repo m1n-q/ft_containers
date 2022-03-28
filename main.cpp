@@ -36,16 +36,14 @@ struct FI {
 template<typename T,  template<typename, typename> class Vec>
 void	test_func()
 {
-	std::cout << std::boolalpha;
-	typedef	Vec<T, std::allocator<T> >							vector;
-	typedef	typename Vec<T, std::allocator<T> >::iterator		iterator;
-	// typedef	typename Vec<T, std::allocator<T> >::const_iterator	const_iterator;
 
-	std::cout << typeid(vector).name() << std::endl << std::endl;
 
-	iterator it;
-	vector	myvec;
-	const vector empty;
+
+	std::map<int, int> smap;
+	ft::map<double, int>	fmap;
+
+	std::cout << smap.max_size() << std::endl;
+	std::cout << fmap.max_size() << std::endl;
 
 
 

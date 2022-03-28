@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/27 22:45:25 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 12:09:45 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,6 +185,8 @@ protected:
 public:
 	allocator_type	get_allocator() const	{ return allocator_type(_node_alloc); }
 	size_type		size() const			{ return _size; }
+	size_type		max_size() const		{ return std::min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
+											//NOTE: min OK?
 
 	iterator		begin() 				{ return iterator(_begin_node); }
 	const_iterator	begin() const			{ return const_iterator(_begin_node); }

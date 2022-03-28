@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/25 03:00:28 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 12:10:17 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ public:
 	const_reverse_iterator				rend() const		{ return reverse_iterator(begin());}
 	bool								empty() const		{ return (tree.size() == 0); }
 	size_type							size() const		{ return tree.size(); }
-	size_type							max_size() const;	//TODO
+	size_type							max_size() const	{ return tree.max_size(); }
 
 
 	pair<iterator,bool>					insert (const value_type& val)
