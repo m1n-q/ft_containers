@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/25 02:18:42 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 15:54:29 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 #include "is_integral.hpp"
 #include "enable_if.hpp"
+#include "reverse_iterator.hpp"
 
 /**----------------------------------------------------------------------------
  * # => iterator_traits 어떤 구현으로 할지 고민중..
@@ -25,9 +26,7 @@
  * # => iterator_traits<Iter> 는 사실 기본형이어도 괜찮긴함..
  * # =>	cppreference 보면 no-members가 되도록 구현하는게 맞긴한듯 ㅎㅎ OK
  *
- * ! check wrap_iter (i -> ci / ci -> i)
- * ! check reverse_iterator
- * ! check operators
+ * @ wrap_iter check done!
  *----------------------------------------------------------------------------*/
 
  /**----------------------------------------------------------------------------
@@ -153,17 +152,29 @@ public:
 /**========================================================================
 * @                           Constructors
 *========================================================================**/
-	wrap_iter()                     : __base()				{}
-	wrap_iter(base_type b)			: __base(b)				{};
-	wrap_iter(const wrap_iter& src) : __base(src.base())	{};
-
+	wrap_iter()                         : __base()				{}
+	wrap_iter(base_type b)			    : __base(b)				{};
+	wrap_iter(const wrap_iter& src)     : __base(src.base())    {};
+    template <typename U>
+	wrap_iter(const wrap_iter<U>& src,
+              typename enable_if<is_convertible<U, base_type>::value, U>::type* = 0)
+                                        : __base(src.base())	{};
 	~wrap_iter() {};
 
+    wrap_iter&  operator=(const wrap_iter& src)
+    {
+        if (this == &src)       return *this;
+
+        this->__base    = src.base();
+
+        return *this;
+    }
+
 /**========================================================================
-* *                            operators                                        //TODO: CHECK
+* *                            operators
 *========================================================================**/
 	reference	operator*() const						{ return *__base; }
-    pointer		operator->() const						{ return __base; }     //! //TODO
+    pointer		operator->() const						{ return __base; }     //' (C->m) is interpreted as (C.operator->())->m
     wrap_iter&	operator++()							{ ++__base; return *this; }
     wrap_iter	operator++(int)							{ wrap_iter tmp(*this); ++(*this); return tmp; }
     wrap_iter&	operator--()							{ --__base; return *this; }
@@ -173,87 +184,51 @@ public:
     wrap_iter&	operator-=(difference_type n)			{ *this += -n; return *this; }
     wrap_iter	operator- (difference_type n) const		{ return (*this + (-n)); }
     reference	operator[](difference_type n) const		{ return __base[n]; }
-    template <class T1, class T2>
-    friend bool operator==(const wrap_iter<T1>& x, const wrap_iter<T2>& y);
-    template <class T1, class T2>
-    friend bool operator!=(const wrap_iter<T1>& x, const wrap_iter<T2>& y);
 
     base_type base() const  {return __base;}
 };
-
-template <class T1, class T2>
-bool operator==(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return (x.base() == y.base()); }
-template <class T1, class T2>
-bool operator!=(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return !(x == y); }
-
-//! tmp
-template <class T1, class T2>
-bool operator<(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return (x.base() < y.base()); }
-template <class T1, class T2>
-bool operator>(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return (x.base() > y.base()); }
-template <class _Iter1, class _Iter2>
-typename wrap_iter<_Iter1>::difference_type
-operator-(const wrap_iter<_Iter1>& __x, const wrap_iter<_Iter2>& __y) _NOEXCEPT
-{ return __x.base() - __y.base(); }
-
-
-template <class T>  T unwrap_iter(T type)											{ return type; }
-template <class T>	typename wrap_iter<T>::base_type unwrap_iter(wrap_iter<T> it)	{ return it.base(); }
-
-template <class Iter>
-class reverse_iterator
-{
-public:
 /**========================================================================
-* '                              typedef
+* *                        non-member operators
 *========================================================================**/
-	typedef Iter													base_type;
-	typedef typename iterator_traits<base_type>::difference_type	difference_type;
-    typedef typename iterator_traits<base_type>::value_type			value_type;
-    typedef typename iterator_traits<base_type>::pointer			pointer;
-    typedef typename iterator_traits<base_type>::reference			reference;
-    typedef typename iterator_traits<base_type>::iterator_category	iterator_category;
-private:
-	base_type   __base;
-public:
-    reverse_iterator()							: __base()				{}
-    explicit reverse_iterator(base_type b)		: __base(b)				{}
-    template <class U>	// copy, type-cast constructor
-    reverse_iterator(reverse_iterator<U>& other): __base(other.base())	{}	//NOTE: why template?
+// @ T1 or T2 can be cv-qualified
+template <class T1, class T2>
+bool operator==(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return x.base() == y.base(); }
+template <class T1, class T2>
+bool operator!=(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return x.base() != y.base(); }
+template <class T1, class T2>
+bool operator<(const wrap_iter<T1>& x, const wrap_iter<T2>& y)  { return x.base() < y.base(); }
+template <class T1, class T2>
+bool operator>(const wrap_iter<T1>& x, const wrap_iter<T2>& y)  { return x.base() > y.base(); }
+template <class T1, class T2>
+bool operator<=(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return x.base() <= y.base(); }
+template <class T1, class T2>
+bool operator>=(const wrap_iter<T1>& x, const wrap_iter<T2>& y) { return x.base() >= y.base(); }
 
-public:
 /**========================================================================
-* *                            operators										//TODO: CHECK
-*========================================================================**/
-	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
-	reference			operator*() const						{ Iter tmp(__base); return *(--tmp); }
-    pointer				operator->() const						{ return (&operator*()); }          // ! check
-    reverse_iterator	operator++()							{ --__base; return *this; }
-    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__base; return tmp; } // !
-    reverse_iterator&	operator--()							{ ++__base; return *this; }
-    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__base; return tmp; }	// !
-    reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(__base - n); }
-    reverse_iterator&	operator+=(difference_type n)			{ __base -= n; return *this; }
-    reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(__base + n); }
-    reverse_iterator&	operator-=(difference_type n)			{ __base += n; return *this; }
-    reference			operator[](difference_type n) const		{ return *(*this + n); }
+ * @ According to the resolution of DR179 not only the various comparison
+ * @ operators but also operator- must accept mixed iterator/const_iterator
+ * @ parameters.
+ *=========================================================================*/
+template <class T1, class T2>
+typename wrap_iter<T1>::difference_type
+operator-(const wrap_iter<T1>& x, const wrap_iter<T2>& y)       { return x.base() - y.base(); }
 
-
-    base_type			base(void) const						{ return this->__base; }
-};
-
-template <class _Iter1, class _Iter2>
-bool
-operator==(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& __y)
+template <class T1>
+wrap_iter<T1>
+operator+(typename wrap_iter<T1>::difference_type n, wrap_iter<T1> x)
 {
-    return __x.base() == __y.base();
+    x += n;
+    return x;
 }
-template <class _Iter1, class _Iter2>
-bool
-operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& __y)
-{
-    return !(__x  == __y);
-}
+
+
+
+
+
+
+
+
+
 
 template <class InputIterator>
 typename iterator_traits<InputIterator>::difference_type
@@ -313,6 +288,9 @@ template <class T>
 struct is_random_access_iterator
 : public has_iterator_category_convertible_to<T, random_access_iterator_tag> {};
 
+
+template <class T>  T unwrap_iter(T type)											{ return type; }
+template <class T>	typename wrap_iter<T>::base_type unwrap_iter(wrap_iter<T> it)	{ return it.base(); }
 }
 
 

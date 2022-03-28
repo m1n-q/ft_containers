@@ -2,6 +2,7 @@
 #include <ios>
 #include <memory>
 #include <ostream>
+#include <string>
 #include <vector>
 #include <forward_list>
 #include "enable_if.hpp"
@@ -37,15 +38,28 @@ template<typename T,  template<typename, typename> class Vec>
 void	test_func()
 {
 
+	typedef Vec<T, std::allocator<T> >		VEC;
+	typedef typename VEC::iterator			ITER;
+	typedef typename VEC::const_iterator	CITER;
+
+	VEC				nvec;
+	ITER			tmp;
+	CITER			tmp2;
+	(void)tmp;(void)tmp2;
 
 
-	std::map<int, int> smap;
-	ft::map<double, int>	fmap;
+	nvec.push_back("first");
+	nvec.push_back("second");
+	// nvec.push_back("");
+	// nvec.push_back();
+	// nvec.push_back();
 
-	std::cout << smap.max_size() << std::endl;
-	std::cout << fmap.max_size() << std::endl;
+	ITER			it(nvec.begin());
+	CITER			cit(it);
 
+	// std::cout << ( (cit <= it) ) << std::endl;
 
+	std::cout << cit[1].size() << std::endl;
 
 }
 
@@ -64,13 +78,13 @@ int main(int argc, char** argv)
 
 
 		print_header(input);
-		test_func<int, std::vector>();
+		test_func<std::string, std::vector>();
 
 	}
 	else
 	{
 		print_header(input);
-		test_func<int, ft::vector>();
+		test_func<std::string, ft::vector>();
 	}
 
 

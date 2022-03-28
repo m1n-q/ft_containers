@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 12:09:45 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 12:34:00 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -391,7 +391,7 @@ protected:
 		}
 	}
 
-	void	adjust_beg_end_before_delete(NodePtr del)	// It 's OK to call before rebalace because (beg, end) are (min, max)
+	void	adjust_beg_end_before_delete(NodePtr del)	// It 's OK to call before rebanlace, because (beg, end) are (min, max)
 	{
 		if (_begin_node == del)
 		{
