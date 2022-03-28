@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 16:30:18 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/28 17:41:09 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,18 +69,7 @@ public:
 
     tree_iterator&	operator--()			{ ptr = _prev(ptr); return *this; }
     tree_iterator	operator--(int)			{ tree_iterator t(*this); --(*this); return t;}
-
-    friend bool		operator==( const tree_iterator& x,
-								const tree_iterator& y)  {return x.ptr == y.ptr;}		//NOTE : why friend? const?
-
-	friend bool		operator!=( const tree_iterator& x,
-								const tree_iterator& y)  {return !(x == y);}
-
 };
-
-
-
-
 
 template <class _Node, class _DiffType>
 class tree_const_iterator
@@ -128,14 +117,10 @@ public:
 
     tree_const_iterator&	operator--()	    	{ ptr = _prev(ptr); return *this; }
     tree_const_iterator	    operator--(int)			{ tree_const_iterator t(*this); --(*this); return t;}
-
-    friend bool				operator==( const tree_const_iterator& x,
-										const tree_const_iterator& y)  {return x.ptr == y.ptr;}		//NOTE : why friend? const?
-
-	friend bool				operator!=( const tree_const_iterator& x,
-										const tree_const_iterator& y)  {return !(x == y);}
-
 };
+
+
+
 
 
 template <class TreeIterator>
@@ -178,7 +163,7 @@ public:
     wrapper	    			operator--(int)			{ wrapper t(*this); --(*this); return t;}
 
     friend bool				operator==( const wrapper& x,
-										const wrapper& y)  {return x.ptr == y.ptr;}		//NOTE : why friend? const?
+										const wrapper& y)  {return x.ptr == y.ptr;}
 
 	friend bool				operator!=( const wrapper& x,
 										const wrapper& y)  {return !(x == y);}
@@ -230,7 +215,7 @@ public:
     const_wrapper	    	operator--(int)			{ const_wrapper t(*this); --(*this); return t;}
 
     friend bool				operator==( const const_wrapper& x,
-										const const_wrapper& y)  {return x.ptr == y.ptr;}		//NOTE : why friend? const?
+										const const_wrapper& y)  {return x.ptr == y.ptr;}
 
 	friend bool				operator!=( const const_wrapper& x,
 										const const_wrapper& y)  {return !(x == y);}

@@ -1,5 +1,6 @@
 #include <__iterator/iterator_traits.h>
 #include <__tree>
+#include <cstddef>
 #include <ios>
 #include <memory>
 #include <ostream>
@@ -10,6 +11,7 @@
 #include "is_integral.hpp"
 #include "iterator.hpp"
 #include "printer.hpp"
+#include "tree_iter.hpp"
 #include "vector.hpp"
 
 #include <chrono>
@@ -62,13 +64,15 @@ void	test_func()
 	m.insert(PAIR('b', 42));
 	m.insert(PAIR('c', 42));
 	ITER	it(m.begin());
-	CITER	cit(it);
+	CITER	cit(++ITER(it));
 	// ITER	it2(cit);
 
-	std::cout << (*it++).first << std::endl;
-	std::cout << (*it).first << std::endl;
-	std::cout << (*--it).first << std::endl;
-
+	std::cout << it->first << std::endl;
+	std::cout << cit->first << std::endl;
+	std::cout << (it == cit) << std::endl;
+	std::cout << (it == it) << std::endl;
+	std::cout << (cit == cit) << std::endl;;
+	std::cout << (cit == it) << std::endl;
 
 
 }
