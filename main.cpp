@@ -60,19 +60,11 @@ void	test_func()
 
 	(void)tmp1; (void)tmp2;
 
-	m.insert(PAIR('a', 42));
-	m.insert(PAIR('b', 42));
-	m.insert(PAIR('c', 42));
-	ITER	it(m.begin());
-	CITER	cit(++ITER(it));
+	// m.insert(PAIR('a', 42));
+	// m.insert(PAIR('b', 42));
+	// ITER	it(m.begin());
+	// CITER	cit(++ITER(it));
 	// ITER	it2(cit);
-
-	std::cout << it->first << std::endl;
-	std::cout << cit->first << std::endl;
-	std::cout << (it == cit) << std::endl;
-	std::cout << (it == it) << std::endl;
-	std::cout << (cit == cit) << std::endl;;
-	std::cout << (cit == it) << std::endl;
 
 
 }
@@ -90,7 +82,7 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		test_func<char, int, std::pair, std::map>();
+		// test_func<char, int, std::pair, std::map>();
 
 	}
 	else

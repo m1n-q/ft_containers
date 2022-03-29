@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 17:48:21 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/29 19:54:27 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,16 @@
 # include "iterator.hpp"
 # include "pair.hpp"
 
-
-/**------------------------------------------------------------------------
- * 								//TODO
- * ' No use tree_iter operators ?
- *------------------------------------------------------------------------**/
-
 namespace ft
 {
 template <class _Key, class _Value>   class Node_kv;
 
-template <class _Node, class _DiffType>
+template <class NodeType, class DiffType>
 class tree_iterator
 {
 private:
 
-    typedef _Node                                       node_type;
+    typedef NodeType                                    node_type;
     typedef node_type*                                  NodePtr;
     typedef typename node_type::container_value_type   	container_value_type;   // pair<const key_type, mapped_type>
 
@@ -40,7 +34,7 @@ public:
 
     typedef bidirectional_iterator_tag					iterator_category;
     typedef container_value_type                        value_type;
-    typedef _DiffType									difference_type;
+    typedef DiffType									difference_type;
     typedef value_type&									reference;
     typedef value_type*					            	pointer;
 
@@ -60,22 +54,22 @@ public:
 		return *this;
 	}
 
-	// reference		operator*() const		{ return ptr->val; }
-	// pointer			operator->() const		{ return &(ptr->val); }
+	reference		operator*() const		{ return ptr->val; }
+	pointer			operator->() const		{ return &(ptr->val); }
 
-    // tree_iterator&	operator++()  			{ ptr = _next(ptr); return *this; }
-    // tree_iterator	operator++(int)			{ tree_iterator t(*this); ++(*this); return t;}
+    tree_iterator&	operator++()  			{ ptr = _next(ptr); return *this; }
+    tree_iterator	operator++(int)			{ tree_iterator t(*this); ++(*this); return t;}
 
-    // tree_iterator&	operator--()			{ ptr = _prev(ptr); return *this; }
-    // tree_iterator	operator--(int)			{ tree_iterator t(*this); --(*this); return t;}
+    tree_iterator&	operator--()			{ ptr = _prev(ptr); return *this; }
+    tree_iterator	operator--(int)			{ tree_iterator t(*this); --(*this); return t;}
 };
 
-template <class _Node, class _DiffType>
+template <class NodeType, class DiffType>
 class tree_const_iterator
 {
 private:
 
-    typedef _Node                                       node_type;
+    typedef NodeType                                    node_type;
     typedef node_type*                                  NodePtr;
     typedef typename node_type::container_value_type	container_value_type;   // pair<const key_type, mapped_type>
 
@@ -84,7 +78,7 @@ public:
 
     typedef bidirectional_iterator_tag					iterator_category;
     typedef container_value_type						value_type;
-    typedef _DiffType									difference_type;
+    typedef DiffType									difference_type;
     typedef const value_type&							reference;
     typedef const value_type*				    		pointer;
 
@@ -108,17 +102,35 @@ public:
 		return *this;
 	}
 
-	// reference		        operator*() const		{ return ptr->val; }
-	// pointer			        operator->() const		{ return &(ptr->val); }
+	reference		        operator*() const		{ return ptr->val; }
+	pointer			        operator->() const		{ return &(ptr->val); }
 
-    // tree_const_iterator&	operator++()    		{ ptr = _next(ptr); return *this; }
-    // tree_const_iterator	    operator++(int)			{ tree_const_iterator t(*this); ++(*this); return t;}
+    tree_const_iterator&	operator++()    		{ ptr = _next(ptr); return *this; }
+    tree_const_iterator	    operator++(int)			{ tree_const_iterator t(*this); ++(*this); return t;}
 
-    // tree_const_iterator&	operator--()	    	{ ptr = _prev(ptr); return *this; }
-    // tree_const_iterator	    operator--(int)			{ tree_const_iterator t(*this); --(*this); return t;}
+    tree_const_iterator&	operator--()	    	{ ptr = _prev(ptr); return *this; }
+    tree_const_iterator	    operator--(int)			{ tree_const_iterator t(*this); --(*this); return t;}
 };
 
+template <class NodeType, class DiffType>
+bool	operator==(const tree_iterator<NodeType, DiffType>& x, const tree_iterator<NodeType, DiffType>& y)				{return (x.ptr == y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator==(const tree_const_iterator<NodeType, DiffType>& x, const tree_const_iterator<NodeType, DiffType>& y)	{return (x.ptr == y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator==(const tree_iterator<NodeType, DiffType>& x, const tree_const_iterator<NodeType, DiffType>& y)		{return (x.ptr == y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator==(const tree_const_iterator<NodeType, DiffType>& x, const tree_iterator<NodeType, DiffType>& y)		{return (x.ptr == y.ptr); }
 
+
+
+template <class NodeType, class DiffType>
+bool	operator!=(const tree_iterator<NodeType, DiffType>& x, const tree_iterator<NodeType, DiffType>& y)				{return (x.ptr != y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator!=(const tree_const_iterator<NodeType, DiffType>& x, const tree_const_iterator<NodeType, DiffType>& y)	{return (x.ptr != y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator!=(const tree_iterator<NodeType, DiffType>& x, const tree_const_iterator<NodeType, DiffType>& y)		{return (x.ptr != y.ptr); }
+template <class NodeType, class DiffType>
+bool	operator!=(const tree_const_iterator<NodeType, DiffType>& x, const tree_iterator<NodeType, DiffType>& y)		{return (x.ptr != y.ptr); }
 
 
 
@@ -160,13 +172,6 @@ public:
 
     wrapper&				operator--()	    	{ ptr = _prev(ptr); return *this; }
     wrapper	    			operator--(int)			{ wrapper t(*this); --(*this); return t;}
-
-    friend bool				operator==( const wrapper& x,
-										const wrapper& y)  {return x.ptr == y.ptr;}
-
-	friend bool				operator!=( const wrapper& x,
-										const wrapper& y)  {return !(x == y);}
-
 };
 
 
@@ -212,13 +217,6 @@ public:
 
     const_wrapper&			operator--()	    	{ ptr = _prev(ptr); return *this; }
     const_wrapper	    	operator--(int)			{ const_wrapper t(*this); --(*this); return t;}
-
-    friend bool				operator==( const const_wrapper& x,
-										const const_wrapper& y)  {return x.ptr == y.ptr;}
-
-	friend bool				operator!=( const const_wrapper& x,
-										const const_wrapper& y)  {return !(x == y);}
-
 };
 
 
