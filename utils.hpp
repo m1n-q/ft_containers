@@ -6,14 +6,13 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 20:37:29 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/30 19:47:04 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef UTILS_HPP
 # define UTILS_HPP
-
 
 
 template <class Alloc, class T>
@@ -59,6 +58,14 @@ T max(T a, T b)
 	if (a < b)
 		return b;
 	return a;
+}
+
+template <class T>
+T min(T a, T b)
+{
+	if (a < b)
+		return a;
+	return b;
 }
 
 template <class U>

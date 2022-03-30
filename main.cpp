@@ -1,6 +1,8 @@
 #include <__iterator/iterator_traits.h>
 #include <__tree>
+#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <ios>
 #include <memory>
 #include <ostream>
@@ -23,19 +25,22 @@
 #include "map.hpp"
 
 
-class P {};
-class D : public P {};
-
-struct FI {
-	typedef ptrdiff_t					difference_type;
-    typedef int							value_type;
-    typedef int*						pointer;
-    typedef int&						reference;
-    typedef ft::output_iterator_tag	iterator_category;
-};
-
-
-
+template <class ForwardIterator>
+bool sorted(ForwardIterator first, ForwardIterator last)
+{
+	ForwardIterator l = last;
+	if (first != last)
+	{
+		ForwardIterator i = first;
+		while (++i != last)
+		{
+			if (i->first < first->first)
+				return false;
+			first = i;
+		}
+	}
+	return last == l;
+}
 
 template<typename K,
 		 typename V,
@@ -51,22 +56,23 @@ void	test_func()
 					std::allocator<PAIR>
 				>							MAP;
 
-	typedef typename MAP::iterator			ITER;
-	typedef typename MAP::const_iterator	CITER;
+	// typedef typename MAP::iterator			ITER;
+	// typedef typename MAP::const_iterator	CITER;
 
 	MAP		m;
-	ITER	tmp1;
-	CITER	tmp2;
 
-	(void)tmp1; (void)tmp2;
+	START
+	for (int i = 0; i < 10; i++)
+	{
+		// rand();
 
-	// m.insert(PAIR('a', 42));
-	// m.insert(PAIR('b', 42));
-	// ITER	it(m.begin());
-	// CITER	cit(++ITER(it));
-	// ITER	it2(cit);
+		m.insert(PAIR(i, 'a'));
+	}
+	// m.d();
+	std::cout << std::boolalpha;
+	std::cout << sorted(m.begin(), m.end()) << std::endl;
 
-
+	END
 }
 
 
@@ -82,13 +88,13 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		// test_func<char, int, std::pair, std::map>();
+		// test_func<int, char, std::pair, std::map>();
 
 	}
 	else
 	{
 		print_header(input);
-		test_func<char, int, ft::pair, ft::map>();
+		test_func<int, char, ft::pair, ft::map>();
 	}
 	system("leaks a.out");
 

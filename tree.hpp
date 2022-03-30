@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 12:34:00 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/30 19:53:03 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ public:
 	NodePtr					left;
 	NodePtr					right;
 	container_value_type	val;
+	char					bf;
 
 	NodePtr					_link_to_end;
 	NodePtr					_link_to_dummy;
@@ -62,13 +63,13 @@ public:
 * @                           Constructors
 *========================================================================**/
 	Node_kv()
-	: parent(NULL), left(NULL), right(NULL) , _link_to_end(NULL), _link_to_dummy(NULL) {}
+	: parent(NULL), left(NULL), right(NULL), bf(0), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	Node_kv(const container_value_type& v)
-	: parent(NULL), left(NULL), right(NULL), val(v), _link_to_end(NULL), _link_to_dummy(NULL) {}
+	: parent(NULL), left(NULL), right(NULL), bf(0), val(v), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	Node_kv(const Node_kv& x)
-	: parent(NULL), left(NULL), right(NULL), val(x.val), _link_to_end(NULL), _link_to_dummy(NULL) {}
+	: parent(NULL), left(NULL), right(NULL), bf(0), val(x.val), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	~Node_kv() {}
 
@@ -488,59 +489,57 @@ protected:
 
 	void rotate_left(NodePtr z)
 	{
-		if (!z || !z->right)
-			return ;
-		NodePtr x  = z->right;
-		NodePtr xl = x->left;
+		if (!z || !z->right)		return ;
 
-		x->parent = z->parent;
+									NodePtr x  = z->right;
+									NodePtr xl = x->left;
+
+									x->parent = z->parent;
 		if (z->parent)
 		{
-			if (is_left_child(z))
-				z->parent->left = x;
-			else
-				z->parent->right = x;
+			if (is_left_child(z))	z->parent->left = x;
+			else					z->parent->right = x;
 		}
 
-		x->left = z;
-		z->parent = x;
+									x->left = z;
+									z->parent = x;
 
-		z->right = xl;
-		if (xl)
-			xl->parent = z;
+									z->right = xl;
+		if (xl)						xl->parent = z;
 
-		if (this->_root == z)
-			this->_root = x;
+		if (this->_root == z)		this->_root = x;
 
+									z->bf = z->bf + 1 - min(x->bf, 0);
+    								x->bf = x->bf + 1 + max(z->bf, 0);
 	}
 
 	void rotate_right(NodePtr z)
 	{
-		if (!z || !z->left)
-			return ;
-		NodePtr x  = z->left;
-		NodePtr xr = x->right;
+		if (!z || !z->left)			return ;
+
+									NodePtr x  = z->left;
+									NodePtr xr = x->right;
 
 
-		x->parent = z->parent;
+									x->parent = z->parent;
 		if (z->parent)
 		{
-			if (is_left_child(z))
-				z->parent->left = x;
-			else
-				z->parent->right = x;
+			if (is_left_child(z))	z->parent->left = x;
+			else					z->parent->right = x;
 		}
 
-		x->right = z;
-		z->parent = x;
+									x->right = z;
+									z->parent = x;
 
-		z->left = xr;
-		if (xr)
-			xr->parent = z;
+									z->left = xr;
+		if (xr)						xr->parent = z;
 
-		if (this->_root == z)
-			this->_root = x;
 
+
+		if (this->_root == z)		this->_root = x;
+
+		z->bf = z->bf + 1 - min(z->bf, 0);
+		x->bf = x->bf + 1 + max(z->bf, 0);
 	}
 
 	virtual void		dummy() = 0;
@@ -737,6 +736,12 @@ public:
 			y = z;
 			z = z->parent;
 
+			if (z)
+			{
+				if (is_left_child(y))	z->bf--;
+				else					z->bf++;
+			}
+
 			if (x && y && z)
 			{
 				if (!is_balanced(z))
@@ -845,7 +850,11 @@ private:
 
 	bool		is_balanced(NodePtr z)
 	{
-		if (get_bf(z) >=2)
+		// if (get_bf(z) >=2)
+		// 	return false;
+		// return true;
+
+		if (z->bf < -1 || z->bf > 1)
 			return false;
 		return true;
 	}
