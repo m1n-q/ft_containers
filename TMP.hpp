@@ -13,7 +13,7 @@ void display(NodePtr ptr, int level)
         for (i = 0; i < level && ptr != this->_root; i++) {
             printf("        ");
         }
-        printf("\033[92;35m%d\033[0m [\033[32m%zu\033[0m]", ptr->val.first, ptr->height);
+        printf("\033[92;35m%d\033[0m [\033[32m%zu\033[0m]", ptr->val.first, ptr->bf);
         display(ptr->left, level + 1);
     }
 }

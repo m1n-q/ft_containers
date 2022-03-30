@@ -56,21 +56,34 @@ void	test_func()
 					std::allocator<PAIR>
 				>							MAP;
 
-	// typedef typename MAP::iterator			ITER;
+	typedef typename MAP::iterator			ITER;
 	// typedef typename MAP::const_iterator	CITER;
 
 	MAP		m;
 
 	START
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 1000000; i++)
 	{
-		// rand();
-
-		m.insert(PAIR(i, 'a'));
+		int key = rand();
+		// std::cout << key << std::endl;
+		// printf("%d ", key);
+		m.insert(PAIR(key, 'a'));
 	}
+
+	for (ITER f = m.begin(); f != m.end(); f++)
+		std::cout<<  f->first << std::endl;
+
+
+	// printf("\n");
+
 	// m.d();
-	std::cout << std::boolalpha;
-	std::cout << sorted(m.begin(), m.end()) << std::endl;
+	// std::cout << std::boolalpha;
+	// std::cout << (
+	// 				sorted(m.begin(), m.end()) ?
+	// 				"\033[32mSORTED!" :
+	// 				"\033[30mNOT SORTED!"
+	// 			)
+	// << "\033[0m" << std::endl;
 
 	END
 }
@@ -88,7 +101,7 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		// test_func<int, char, std::pair, std::map>();
+		test_func<int, char, std::pair, std::map>();
 
 	}
 	else
@@ -96,6 +109,6 @@ int main(int argc, char** argv)
 		print_header(input);
 		test_func<int, char, ft::pair, ft::map>();
 	}
-	system("leaks a.out");
+	// system("leaks a.out");
 
 }

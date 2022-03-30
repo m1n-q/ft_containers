@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/30 19:53:03 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/31 00:12:40 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,10 @@ public:
 	: parent(NULL), left(NULL), right(NULL), bf(0), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	Node_kv(const container_value_type& v)
-	: parent(NULL), left(NULL), right(NULL), bf(0), val(v), _link_to_end(NULL), _link_to_dummy(NULL) {}
+	: parent(NULL), left(NULL), right(NULL), val(v), bf(0), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	Node_kv(const Node_kv& x)
-	: parent(NULL), left(NULL), right(NULL), bf(0), val(x.val), _link_to_end(NULL), _link_to_dummy(NULL) {}
+	: parent(NULL), left(NULL), right(NULL), val(x.val), bf(0), _link_to_end(NULL), _link_to_dummy(NULL) {}
 
 	~Node_kv() {}
 
@@ -186,8 +186,8 @@ protected:
 public:
 	allocator_type	get_allocator() const	{ return allocator_type(_node_alloc); }
 	size_type		size() const			{ return _size; }
-	size_type		max_size() const		{ return std::min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
-											//NOTE: min OK?
+	size_type		max_size() const		{ return min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
+
 
 	iterator		begin() 				{ return iterator(_begin_node); }
 	const_iterator	begin() const			{ return const_iterator(_begin_node); }
@@ -487,60 +487,6 @@ protected:
 		return maybe_unbalanced;
 	}
 
-	void rotate_left(NodePtr z)
-	{
-		if (!z || !z->right)		return ;
-
-									NodePtr x  = z->right;
-									NodePtr xl = x->left;
-
-									x->parent = z->parent;
-		if (z->parent)
-		{
-			if (is_left_child(z))	z->parent->left = x;
-			else					z->parent->right = x;
-		}
-
-									x->left = z;
-									z->parent = x;
-
-									z->right = xl;
-		if (xl)						xl->parent = z;
-
-		if (this->_root == z)		this->_root = x;
-
-									z->bf = z->bf + 1 - min(x->bf, 0);
-    								x->bf = x->bf + 1 + max(z->bf, 0);
-	}
-
-	void rotate_right(NodePtr z)
-	{
-		if (!z || !z->left)			return ;
-
-									NodePtr x  = z->left;
-									NodePtr xr = x->right;
-
-
-									x->parent = z->parent;
-		if (z->parent)
-		{
-			if (is_left_child(z))	z->parent->left = x;
-			else					z->parent->right = x;
-		}
-
-									x->right = z;
-									z->parent = x;
-
-									z->left = xr;
-		if (xr)						xr->parent = z;
-
-
-
-		if (this->_root == z)		this->_root = x;
-
-		z->bf = z->bf + 1 - min(z->bf, 0);
-		x->bf = x->bf + 1 + max(z->bf, 0);
-	}
 
 	virtual void		dummy() = 0;
 	static size_type	get_height(const NodePtr x)
@@ -730,25 +676,49 @@ public:
 			return result;
 
 		z = result.first.ptr;
+		bool subtree_height_increased = false;
+
+		if (z->parent)
+		{
+			if (z->parent->bf == 0)
+				subtree_height_increased = true;
+			else
+				is_left_child(z) ? z->parent->bf-- : z->parent->bf++;
+		}
+
 		while (z)
 		{
 			x = y;
 			y = z;
 			z = z->parent;
 
-			if (z)
+			if (z && subtree_height_increased)
 			{
-				if (is_left_child(y))	z->bf--;
-				else					z->bf++;
+				if	(is_left_child(y))
+				{
+					if (z->bf == 1)
+						subtree_height_increased = false;
+					z->bf--;
+				}
+				else if (is_right_child(y))
+				{
+					if (z->bf == -1)
+						subtree_height_increased = false;
+					z->bf++;
+				}
 			}
+			else //if (!subtree_height_increased)
+				subtree_height_increased = false;
 
-			if (x && y && z)
-			{
-				if (!is_balanced(z))
+			// if (x && y && z)
+			// {
+			if (!is_balanced(z))
 					break ;
-			}
+			// }
 		}
+		// printf("INSERTED : %d\n", result.first->first);
 		rebalance(x, y, z);
+		// d();
 		return result;
 	}
 
@@ -824,15 +794,77 @@ public:
 private:
 	void	dummy() {}
 
-	NodePtr rebalance(NodePtr x, NodePtr y, NodePtr z)
+	void rotate_left(NodePtr z)
+	{
+		if (!z || !z->right)		return ;
+
+									NodePtr x  = z->right;
+									NodePtr xl = x->left;
+
+									x->parent = z->parent;
+		if (z->parent)
+		{
+			if (is_left_child(z))	z->parent->left = x;
+			else					z->parent->right = x;
+		}
+
+									x->left = z;
+									z->parent = x;
+
+									z->right = xl;
+		if (xl)						xl->parent = z;
+
+		if (this->_root == z)		this->_root = x;
+
+									z->bf = z->bf - 1 - max(x->bf, '\0');
+									x->bf = x->bf - 1 + min(z->bf, '\0');
+
+		// printf("LEFT\n");
+	}
+
+	void rotate_right(NodePtr z)
+	{
+		if (!z || !z->left)			return ;
+
+									NodePtr x  = z->left;
+									NodePtr xr = x->right;
+
+
+									x->parent = z->parent;
+		if (z->parent)
+		{
+			if (is_left_child(z))	z->parent->left = x;
+			else					z->parent->right = x;
+		}
+
+									x->right = z;
+									z->parent = x;
+
+									z->left = xr;
+		if (xr)						xr->parent = z;
+
+
+
+		if (this->_root == z)		this->_root = x;
+
+		z->bf = z->bf + 1 - min(x->bf, '\0');
+		x->bf = x->bf + 1 + max(z->bf, '\0');
+	}
+
+	NodePtr rebalance(NodePtr x, NodePtr y, NodePtr z)		//NOTE: rebalance OK?
 	{
 		NodePtr	newz = z;
 
 		if (!(x && y && z))								return newz;
-		else if	(z->left == y && y->left == x)			{ base::rotate_right(z); newz = y ; }
-		else if	(z->right == y && y->right == x)		{ base::rotate_left(z); newz = y; }
-		else if	(z->left == y && y->right == x) 		{ base::rotate_left(y); base::rotate_right(z); newz = x; }
-		else if	(z->right == y && y->left == x)			{ base::rotate_right(y); base::rotate_left(z); newz = x; }
+		else if	(z->left == y && y->left == x)			{ rotate_right(z); newz = y ; }
+		else if	(z->right == y && y->right == x)		{ rotate_left(z); newz = y; }
+		else if	(z->left == y && y->right == x) 		{ rotate_left(y); rotate_right(z); newz = x; }
+		else if	(z->right == y && y->left == x)			{ rotate_right(y); rotate_left(z); newz = x; }
+
+		// if (z->bf < 0)
+		// {
+		// 	if ()
+		// }
 
 		return newz;
 	}
@@ -853,7 +885,8 @@ private:
 		// if (get_bf(z) >=2)
 		// 	return false;
 		// return true;
-
+		if (!z)
+			return true; 	//WARN
 		if (z->bf < -1 || z->bf > 1)
 			return false;
 		return true;
@@ -865,7 +898,35 @@ private:
 				x->left : x->right;
 	}
 
+public:
+	void d()
+{
+	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+	display(this->_root, 1);
+	printf("\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+}
+void display(NodePtr ptr, int level)
+{
+    int i;
+    if (ptr != NULL) {
+        display(ptr->right, level + 1);
+        printf("\n");
+        if (ptr == this->_root)
+            printf("Root -> ");
+        for (i = 0; i < level && ptr != this->_root; i++) {
+            printf("            ");
+        }
 
+        printf("\033[92;35m  %d\033[0m   \n", ptr->val.first);
+		for (i = 0; i < level && ptr != this->_root; i++) {
+            printf("            ");
+        }
+		printf("[\033[32m%hhd \033[92;34m%d\033[0m]  ", ptr->bf, (ptr->parent ? ptr->parent->val.first: 0) );
+
+
+        display(ptr->left, level + 1);
+    }
+}
 };
 
 

@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/29 19:52:52 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/30 19:55:52 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ public:
 /**========================================================================
 * #                          member functions
 *========================================================================**/
-
+	void d() {tree.d();}
 	iterator							begin()				{ return tree.begin(); }
 	const_iterator						begin() const		{ return tree.begin(); }
 	iterator							end()				{ return tree.end(); }
