@@ -6,13 +6,18 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/31 00:12:40 by mishin           ###   ########.fr       */
+/*   Updated: 2022/03/31 23:42:43 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 //TODO: canonical form
 #ifndef TREE_HPP
+# define TREE_HPP
+
+# define NOT_LOST '\0'
+# define LOST_L	'\1'
+# define LOST_R	'\2'
 # define TREE_HPP
 
 #include <cstddef>
@@ -409,17 +414,17 @@ protected:
 		}
 	}
 
-	NodePtr delete_by_copying(NodePtr x)
+	pair<NodePtr, char> delete_by_copying(NodePtr x)
 	{
 		NodePtr xl = x->left;
 		NodePtr xr = x->right;
 		NodePtr xp = x->parent;
 		NodePtr maybe_unbalanced = NULL;
-
+		char	lost = NOT_LOST;
 
 		NodePtr tmp = find_key(x->val.first);
 		if (!tmp || tmp->val != x->val)
-			return NULL;				// no such val
+			return pair<NodePtr, char>(maybe_unbalanced, lost);	 // ! no such val
 
 		//' case1: x == leaf
 		if (!xl && !xr)
@@ -430,37 +435,39 @@ protected:
 				_root = NULL;
 			else
 			{
-				if (xp->left == x)		xp->left = NULL;
-				else					xp->right = NULL;
+				if (is_left_child(x))	{ xp->left	= NULL; lost = LOST_L; }
+				else					{ xp->right	= NULL; lost = LOST_R; }
 			}
 			destroy_node(x);
 
-
-			maybe_unbalanced = xp;	// can be null if x == root.
+			maybe_unbalanced = xp;	// ! can be null if x == root.
 		}
 
 		//' case2: x has 2 children
 		else if (xl && xr)
 		{
+			//* find Max key under x->left
+
 			NodePtr M = xl;
 			while (M->right)		M = M->right;
 			adjust_beg_end_before_delete(M);
 
+			//* link M->parent with M->child
+
 			NodePtr Mp = M->parent;
 			NodePtr Ml = M->left;
 
-			if (M == Mp->right)		Mp->right = Ml;
-			else					Mp->left = Ml;				//! for case (M == xl)
+			if (is_right_child(M))	{ Mp->right= Ml; lost = LOST_R; }
+			else					{ Mp->left = Ml; lost = LOST_L; }	//! for case (Mp == x, M == xl)
 
 			if (Ml)					Ml->parent = Mp;
 
-			// x->val = M->val;									// copying value of M. it's OK even if x was _root.
+			//*  M.val ~> x.val
+
 			x->copy_value(M);
 			destroy_node(M);
 
-
-			if (Ml)					maybe_unbalanced = Ml;		// new node in M's position
-			else					maybe_unbalanced = Mp;
+			maybe_unbalanced = Mp;
 		}
 
 		//' case3: x has 1 child
@@ -471,20 +478,22 @@ protected:
 
 			if (x == _root)
 				_root = child;
+
+			// * link x->parent with x->child
 			else
 			{
-				if (xp->left == x)		xp->left = child;
-				else					xp->right = child;
+				if (is_left_child(x))	{ xp->left	= child; lost = LOST_L; }
+				else					{ xp->right	= child; lost = LOST_R; }
 			}
 
 			child->parent = xp;
 			destroy_node(x);
 
-			maybe_unbalanced = child;
+			maybe_unbalanced = xp;
 		}
 
 		_size--;
-		return maybe_unbalanced;
+		return pair<NodePtr, char>(maybe_unbalanced, lost);
 	}
 
 
@@ -666,6 +675,14 @@ public:
 		return *this;
 	}
 
+	//* In order to decide BF(X), checking if height(X->subtree) was changed.
+	//* increment of height(subtree) can affects height(Parent), in SOME cases.
+	//'															 ^^^^^^^^^^^^^
+
+	//! rebalancing reduces height.
+	//! In case of Insert(), rebalancing doesn't affects height(Parent) because it is reducing after insertion.
+
+
 	pair<iterator,bool> insert(const container_value_type& val)
 	{
 		pair<iterator, bool> result;
@@ -688,15 +705,14 @@ public:
 
 		while (z)
 		{
-			x = y;
 			y = z;
 			z = z->parent;
 
-			if (z && subtree_height_increased)
+			if (z && subtree_height_increased)	// * height(Y) increased
 			{
-				if	(is_left_child(y))
+				if (is_left_child(y))
 				{
-					if (z->bf == 1)
+					if (z->bf == 1)				// * if Z is right-biased, increment of height(Z->left) cannot affects height(Z)
 						subtree_height_increased = false;
 					z->bf--;
 				}
@@ -707,18 +723,13 @@ public:
 					z->bf++;
 				}
 			}
-			else //if (!subtree_height_increased)
+			else
 				subtree_height_increased = false;
 
-			// if (x && y && z)
-			// {
 			if (!is_balanced(z))
 					break ;
-			// }
 		}
-		// printf("INSERTED : %d\n", result.first->first);
-		rebalance(x, y, z);
-		// d();
+		rebalance(z);
 		return result;
 	}
 
@@ -744,7 +755,7 @@ public:
 					break ;
 			}
 		}
-		rebalance(x, y, z);
+		rebalance(z);
 		return (result.first);
 	}
 
@@ -753,32 +764,84 @@ public:
 		remove(i.ptr);
 	}
 
+
+
+	//* In order to decide BF(X), checking if height(X->subtree) was changed.
+	//* decrement of height(subtree) can affects height(Parent), in SOME cases.
+	//'															 ^^^^^^^^^^^^^
+	//! rebalancing reduces height.
+	//! But in case of remove(), it can affects height(Parent) because it is reducing after some removal.
 	void remove(NodePtr u)
 	{
-		NodePtr x, y, z, w;
-		x = y = z = w = NULL;
+		NodePtr y = NULL;
 
-		NodePtr v = base::delete_by_copying(u);		// return possible deepest unbalanced node.
 
-		while (v != NULL)
+
+		pair<NodePtr, char> result	= base::delete_by_copying(u);	// * return possible deepest unbalanced node.
+		NodePtr				z		= result.first;
+		char				lost	= result.second;
+		bool				subtree_height_decreased;
+
+		subtree_height_decreased = false;
+		if (z)
 		{
-			if (!is_balanced(v))
+			if (lost == LOST_L)
 			{
-				z = v;
-				y = get_heavier_subtree(z);
-				x = get_heavier_subtree(y);
-
-				v = rebalance(x, y, z);
+				if (z->bf < 0)		//TODO : check
+					subtree_height_decreased = true;
+				z->bf++;
 			}
-			if (v)
+			else
 			{
-				w = v;
-				v = v->parent;
+				if (z->bf > 0)
+					subtree_height_decreased = true;
+				z->bf--;
+			}
+
+
+			if (!is_balanced(z))
+			{
+				NodePtr child = z->bf < 0 ? z->left : z->right;;
+				if (child->bf != 0)
+						subtree_height_decreased = true;
+				z = rebalance(z);
 			}
 		}
-		if (w)
-			this->_root = w;
+
+		while (z != NULL)
+		{
+			y = z;
+			z = z->parent;
+			if (z && subtree_height_decreased)	// * height(Y) height decreased
+			{
+				if (is_left_child(y))			// * left-child height changed
+				{
+					if (z->bf >= 0)				// * if Z is right-biased or flat, decrement of height(z->left) cannot affects height(Z).
+						subtree_height_decreased = false;
+					z->bf++;
+				}
+				else
+				{
+					if (z->bf <= 0)
+						subtree_height_decreased = false;
+					z->bf--;
+				}
+			}
+			else
+				subtree_height_decreased = false;
+
+			if (!is_balanced(z))
+			{
+				NodePtr child = z->bf < 0 ? z->left : z->right;
+				if (child->bf != 0)				// ! check if rebalnce(Z) affects height(Z)
+					subtree_height_decreased = true;
+				z = rebalance(z);
+			}
+		}
+		if (y)
+			this->_root = y;
 	}
+
 
 	size_type	remove_key(const key_type& k)
 	{
@@ -794,7 +857,7 @@ public:
 private:
 	void	dummy() {}
 
-	void rotate_left(NodePtr z)
+	void	rotate_left(NodePtr z)
 	{
 		if (!z || !z->right)		return ;
 
@@ -818,11 +881,9 @@ private:
 
 									z->bf = z->bf - 1 - max(x->bf, '\0');
 									x->bf = x->bf - 1 + min(z->bf, '\0');
-
-		// printf("LEFT\n");
 	}
 
-	void rotate_right(NodePtr z)
+	void	rotate_right(NodePtr z)
 	{
 		if (!z || !z->left)			return ;
 
@@ -851,21 +912,35 @@ private:
 		x->bf = x->bf + 1 + max(z->bf, '\0');
 	}
 
-	NodePtr rebalance(NodePtr x, NodePtr y, NodePtr z)		//NOTE: rebalance OK?
+	NodePtr rebalance(/*NodePtr x, NodePtr y,*/ NodePtr z)		//NOTE: rebalance OK?
 	{
+
 		NodePtr	newz = z;
-
-		if (!(x && y && z))								return newz;
-		else if	(z->left == y && y->left == x)			{ rotate_right(z); newz = y ; }
-		else if	(z->right == y && y->right == x)		{ rotate_left(z); newz = y; }
-		else if	(z->left == y && y->right == x) 		{ rotate_left(y); rotate_right(z); newz = x; }
-		else if	(z->right == y && y->left == x)			{ rotate_right(y); rotate_left(z); newz = x; }
-
-		// if (z->bf < 0)
-		// {
-		// 	if ()
-		// }
-
+		// if (!(x && y && z))								return newz;
+		// else if	(z->left == y && y->left == x)			{ rotate_right(z); newz = y ; }
+		// else if	(z->right == y && y->right == x)		{ rotate_left(z); newz = y; }
+		// else if	(z->left == y && y->right == x) 		{ rotate_left(y); rotate_right(z); newz = x; }
+		// else if	(z->right == y && y->left == x)			{ rotate_right(y); rotate_left(z); newz = x; }
+		if (z)
+		{
+			if (z->bf == -2)
+			{
+				if (z->left->bf == +1)
+					rotate_left(z->left);
+				rotate_right(z);
+			}
+			else if (z->bf == +2)
+			{
+				if (z->right->bf == -1)
+					rotate_right(z->right);
+				rotate_left(z);
+			}
+			// if		(z->bf == -2 && z->left->bf == -1)	{ rotate_right(z); }
+			// else if (z->bf == +2 && z->right->bf == +1)	{ rotate_left(z); }
+			// else if (z->bf == -2 && z->left->bf == +1)	{ rotate_left(z->left); rotate_right(z); }
+			// else if (z->bf == +2 && z->right->bf == -1)	{ rotate_right(z->right); rotate_left(z);}
+			newz = z->parent;
+		}
 		return newz;
 	}
 
@@ -899,11 +974,12 @@ private:
 	}
 
 public:
-	void d()
+void d()
 {
 	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
 	display(this->_root, 1);
-	printf("\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+	printf("\n\n");
+	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
 }
 void display(NodePtr ptr, int level)
 {
@@ -911,18 +987,69 @@ void display(NodePtr ptr, int level)
     if (ptr != NULL) {
         display(ptr->right, level + 1);
         printf("\n");
-        if (ptr == this->_root)
+
+
+		for (i = 0; i < level && ptr != this->_root; i++)
+		{
+			if (i == level - 1)
+				printf("           ");
+
+			else if (i == level - 2)
+				printf("            ┃");
+			else
+			{
+
+        		printf("            ┃");
+			}
+        }
+		if (ptr == this->_root)
+			printf("           ");
+		printf("[\033[32m%hhd\033[0m]\n", ptr->bf );
+
+		if (ptr == this->_root)
             printf("Root -> ");
-        for (i = 0; i < level && ptr != this->_root; i++) {
-            printf("            ");
-        }
 
-        printf("\033[92;35m  %d\033[0m   \n", ptr->val.first);
-		for (i = 0; i < level && ptr != this->_root; i++) {
-            printf("            ");
-        }
-		printf("[\033[32m%hhd \033[92;34m%d\033[0m]  ", ptr->bf, (ptr->parent ? ptr->parent->val.first: 0) );
+		for (i = 0; i < level && ptr != this->_root; i++)
+		{
 
+			if (i == level -1)
+			{
+				if (ptr != this->_root && is_left_child(ptr))
+				{
+					printf("\b┗━━━━━━━━━━━");
+					break;
+				}
+				else if (ptr != this->_root && is_right_child(ptr))
+				{
+
+					printf("\b┏━━━━━━━━━━━");
+					break;
+				}
+				else
+				{
+					printf("           ");
+				}
+			}
+
+			else
+        		printf("            ┃");
+
+        }
+        printf("\033[92;35m%d\033[0m\n", ptr->val.first);
+
+
+		for (i = 0; i < level && ptr != this->_root; i++)
+		{
+			if (i == level - 1)
+				printf("           ");
+			else if (i == level - 2)
+				printf("            ┃");
+			else
+        		printf("            ┃");
+        }
+		if (ptr == this->_root)
+			printf("           ");
+		printf("[\033[92;34m%d\033[0m]",(ptr->parent ? ptr->parent->val.first: 0) );
 
         display(ptr->left, level + 1);
     }

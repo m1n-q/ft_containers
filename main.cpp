@@ -2,6 +2,7 @@
 #include <__tree>
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <ios>
 #include <memory>
@@ -56,34 +57,54 @@ void	test_func()
 					std::allocator<PAIR>
 				>							MAP;
 
-	typedef typename MAP::iterator			ITER;
+	// typedef typename MAP::iterator			ITER;
 	// typedef typename MAP::const_iterator	CITER;
 
 	MAP		m;
+	int	size = 20;
+	std::vector<K> keys;
 
 	START
-	for (int i = 0; i < 1000000; i++)
+	for (int i = 0; i < size; i++)
 	{
 		int key = rand();
-		// std::cout << key << std::endl;
-		// printf("%d ", key);
+		keys.push_back(key);
 		m.insert(PAIR(key, 'a'));
 	}
 
-	for (ITER f = m.begin(); f != m.end(); f++)
-		std::cout<<  f->first << std::endl;
+	// for (ITER f = m.begin(); f != m.end(); f++)
+	// 	std::cout<<  f->first << std::endl;
 
+	m.d();
+
+
+	for (int i = 0; i < 5; i++)
+	{
+		int randidx = rand() % size;
+		try
+		{
+			keys.at(randidx);
+			std::cout << "REMOVE " << keys[randidx] << std::endl;
+			m.erase(keys[randidx]);
+			keys.erase(keys.begin() + randidx);
+			// m.d();
+		}
+		catch (std::exception& e)
+		{
+			;
+		}
+	}
 
 	// printf("\n");
 
-	// m.d();
-	// std::cout << std::boolalpha;
-	// std::cout << (
-	// 				sorted(m.begin(), m.end()) ?
-	// 				"\033[32mSORTED!" :
-	// 				"\033[30mNOT SORTED!"
-	// 			)
-	// << "\033[0m" << std::endl;
+	m.d();
+	std::cout << std::boolalpha;
+	std::cout << (
+					sorted(m.begin(), m.end()) ?
+					"\033[32mSORTED!" :
+					"\033[30mNOT SORTED!"
+				)
+	<< "\033[0m" << std::endl;
 
 	END
 }
@@ -101,7 +122,7 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		test_func<int, char, std::pair, std::map>();
+		// test_func<int, char, std::pair, std::map>();
 
 	}
 	else
