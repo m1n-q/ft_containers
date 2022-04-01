@@ -6,6 +6,54 @@
 #include <map>
 #include "map.hpp"
 
+#include <stack>
+#include "stack.hpp"
+
+
+
+
+template<
+			class T,
+			template <class = T, class = std::allocator<T> > class Cont,
+			template <class = T, class = Cont<T> > class Stack
+		>
+void		stack_tester()
+{
+	Stack<>	s;
+
+	PRINT(CYAN("s") " is empty?")	std::cout << s.empty() << std::endl;
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+
+	for (int i = 0; i < 10; i++)
+		s.push(i);
+	PRINT("AFTER " PURPLE("PUSH") )
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━")
+	PRINT(CYAN("s") " is empty?")	std::cout << s.empty() << std::endl;
+	PRINT(CYAN("s") ".size()")		std::cout << s.size() << std::endl;
+	std::cout << PURPLE("CURRENT TOP: ") << s.top() << std::endl;
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+
+	PRINT(BLUE("POP") " ELEMS...")
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━")
+	for (int i = 0; i < 5; i++)
+	{
+		std::cout << "POPPING " << s.top() << std::endl;
+		s.pop();
+		std::cout << BLUE("CURRENT TOP: ") << s.top() << std::endl;
+	}
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
+
+	PRINT("AFTER " BLUE("POP") )
+	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━")
+
+	PRINT(CYAN("s") ".size()")		std::cout << s.size() << std::endl;
+}
+
+
+
 template<
 			class K,
 			class V,
@@ -359,13 +407,15 @@ int main(int argc, char** argv)
 	{
 		print_header(input);
 		// vector_tester<int, std::vector>();
-		map_tester<int, char, std::less, std::pair, std::map >();
+		// map_tester<int, char, std::less, std::pair, std::map >();
+		stack_tester<int, std::vector, std::stack >();
 	}
 	else
 	{
 		print_header(input);
 		// vector_tester<int, ft::vector>();
-		map_tester<int, char, std::less, ft::pair, ft::map >();
+		// map_tester<int, char, std::less, ft::pair, ft::map >();
+		stack_tester<int, ft::vector, ft::stack >();
 	}
 	system("leaks a.out");
 
