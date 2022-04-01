@@ -50,6 +50,7 @@ void		stack_tester()
 	PRINT("━━━━━━━━━━━━━━━━━━━━━━━━")
 
 	PRINT(CYAN("s") ".size()")		std::cout << s.size() << std::endl;
+
 }
 
 
@@ -391,9 +392,22 @@ void		vector_tester()
 	print_vector(v2);
 	PRINT(BLUE("v3 =>"))
 	print_vector(v3);
+
+
+	v3.resize(5);
+    PRINT(PURPLE("After resize") " up to 5");
+	print_vector(v3);
+
+	v3.resize(1);
+    PRINT(PURPLE("After resize") " down to 1 " PURPLE("(default initializer)"));
+	print_vector(v3);
+
+    PRINT(PURPLE("After resize") " up to 6 "PURPLE("(initializer = 999)") )
+	v3.resize(6, 999);
+	print_vector(v3);
+
 	// clear()
 	// get_allocator()	// @ C
-
 }
 
 int main(int argc, char** argv)
@@ -406,16 +420,16 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		// vector_tester<int, std::vector>();
+		vector_tester<int, std::vector>();
 		// map_tester<int, char, std::less, std::pair, std::map >();
-		stack_tester<int, std::vector, std::stack >();
+		// stack_tester<int, std::vector, std::stack >();
 	}
 	else
 	{
 		print_header(input);
-		// vector_tester<int, ft::vector>();
+		vector_tester<int, ft::vector>();
 		// map_tester<int, char, std::less, ft::pair, ft::map >();
-		stack_tester<int, ft::vector, ft::stack >();
+		// stack_tester<int, ft::vector, ft::stack >();
 	}
 	system("leaks a.out");
 

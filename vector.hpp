@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/25 02:44:01 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/02 00:17:40 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@
 /**------------------------------------------------------------------------
  * 								//TODO
  *
- * ! const testcase
+ * * const testcase
  *
  * * LEAK => check done!
  * * swap() => check done!
@@ -206,6 +206,21 @@ public:
 	size_type				capacity() const		{ return static_cast<size_type>(__end_cap() - __begin_); }
 	bool					empty() const			{ return (this->__size_ == 0); }
 	void					reserve(size_type n)	{ if (n > capacity()) reserve_impl(n); }
+	void					resize(size_type n,
+								   T value = T() )
+	{
+		size_type	current = size();
+		if (n > current)
+		{
+			if (capacity() < n)
+				reserve(recommend(n));
+			for (size_type i = 0; i < (n - current); i++)
+				push_back(value);
+
+		}
+		else if (n < current)
+			destruct_at_end(this->__begin_ + n);
+	}
 
 //' element access
 	reference				at(size_type n)			{ if (n >= size()) std::__throw_out_of_range("vector");	return (*this)[n]; }
@@ -348,7 +363,7 @@ public:
 			{
 				//	for expr (end()-1), there is an exception (begin==end).
 				//	case (begin == end) means size==0,
-				//	and it means 'position' can only be (begin | end).
+				//	and it means 'position' can only be (begin || end).
 				construct_at_end(1, *(end()-1));
 				for (iterator p = end()-2; p != position; --p)
 					*p = *(p - 1);
