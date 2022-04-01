@@ -20,20 +20,183 @@ template<
 		>
 void		map_tester()
 {
-	// Map<>	m;
+	typedef typename Map<>::iterator				Iter;
+	typedef typename Map<>::const_iterator			CIter;
+	// typedef typename Map<>::reverse_iterator		RIter;
+	typedef typename Map<>::const_reverse_iterator	CRIter;
 
-	// m.insert(Pair<>(1, 'a'));
-	// m.insert(Pair<>(2, 'a'));
-	// m.insert(Pair<>(3, 'a'));
-	// m.insert(Pair<>(4, 'a'));
-	// m.insert(Pair<>(4, 'a'));
-	// m.insert(Pair<>(6, 'a'));
-	// m.insert(Pair<>(7, 'a'));
-	// m.insert(Pair<>(8, 'a'));
+	Pair<>		arr[] = { Pair<>(100, 'a'), Pair<>(42, 'b'), Pair<>(777, 'c') };
+	Map<>		m1;
+	Map<>		m2(arr, arr + 3);
+	const Map<>	cm(m2);
 
-	// std::cout << m.begin()->first << std::endl;
-	// std::cout << m.begin()->second << std::endl;
+	PRINT(CYAN("m1") " ~ default constructed")
+	print_map(m1);
+	PRINT(YELLOW("m2") " ~ range constructed")
+	print_map(m2);
+	PRINT(GREEN("cm") " ~ copy constructed from " YELLOW("m2"))
+	print_map(cm);
 
+
+	PRINT(CYAN("m1") " is empty?")	std::cout << m1.empty() << std::endl;
+	PRINT(GREEN("cm") " is empty?") std::cout << cm.empty() << std::endl;
+
+	PRINT(CYAN("m1") ": INSERT")
+	m1.insert( Pair<>(666, 'X') );
+	print_map(m1);
+	PRINT(CYAN("m1") " is empty?")	std::cout << m1.empty() <<std::endl;
+
+	PRINT(YELLOW("m2") " = "  CYAN("m1") " (assign)")
+	m2 = m1;
+
+	PRINT(CYAN("m1"))
+	print_map(m1);
+	PRINT(YELLOW("m2"))
+	print_map(m2);
+	PRINT(GREEN("cm"))
+	print_map(cm);
+
+	Pair<Iter, bool>	result;
+
+	for (int i = 0; i < 5; i++)
+	{
+		result = m1.insert(Pair<>(rand() % 1024, 'z'));
+		if (result.second == true)
+			std::cout << result.first->first << BLUE(" inserted!") << std::endl;
+		else
+			std::cout << result.first->first << RED(" already exists!") << std::endl;
+	}
+	print_map(m1);
+	result = m1.insert(Pair<>(666, 'T'));
+	if (result.second == true)
+		std::cout << result.first->first << BLUE(" is inserted") << std::endl;
+	else
+		std::cout << result.first->first << RED(" already exists") << std::endl;
+
+	PRINT("insert 667 to " CYAN("m1") ", near 666 ");
+	m1.insert(m1.find(666), Pair<>(667, 'N'));
+	print_map(m1);
+
+	PRINT(GREEN("cm"))
+	print_map(cm);
+
+	PRINT("insert " RED("[ ") GREEN("cm") ".begin(), " GREEN("cm") ".end()" RED(" )") " to " CYAN("m1: ") )
+	m1.insert(cm.begin(), cm.end());
+	print_map(m1);
+
+	PRINT("erase 666 (iter) from " CYAN("m1"))
+	m1.erase(m1.find(666));
+	print_map(m1);
+
+	// PRINT("erase 666 (iter) from " CYAN("m1"))
+	// m1.erase(m1.find(666));	//! segfault
+	// print_map(m1);
+
+	typedef typename Map<>::size_type	Size;
+	Size s;
+
+	PRINT("erase 666 (key) from " CYAN("m1"))
+	s = m1.erase(666);
+	std::cout << PURPLE("total erased: ") << s << std::endl;
+
+
+	PRINT("erase 667 (key) from " CYAN("m1"))
+	s = m1.erase(667);
+	std::cout << PURPLE("total erased: ") << s << std::endl;
+	print_map(m1);
+
+
+	PRINT("erase " RED("[ ") "2nd, 6th " RED (") ") "of " CYAN( "v1 "))
+	Iter it = m1.begin(), ite = m1.begin();
+	it++;
+	ite++;
+	ite++;
+	ite++;
+	ite++;
+	ite++;
+    m1.erase(it, ite);
+	print_map(m1);
+
+	PRINT(PURPLE("before ") "swap " "(" CYAN("m1") ", " YELLOW("m2") ")")
+	PRINT(CYAN("m1"))
+	print_map(m1);
+	PRINT(YELLOW("m2"))
+	print_map(m2);
+
+	m1.swap(m2);
+
+	PRINT(PURPLE("after ") "swap "  "(" CYAN("m1") ", " YELLOW("m2") ")")
+	PRINT(CYAN("m1"))
+	print_map(m1);
+	PRINT(YELLOW("m2"))
+	print_map(m2);
+
+
+	PRINT(PURPLE("before clear, ") CYAN("m1") " is empty?")	std::cout << m1.empty() << std::endl;
+	m1.clear();
+	PRINT(PURPLE("after clear, ") CYAN("m1") " is empty?")	std::cout << m1.empty() << std::endl;
+
+
+	std::cout << cm.key_comp()(1, 2) << std::endl;								//@ C
+	std::cout << cm.value_comp()( Pair<>(1,'z'), Pair<>(2,'a') ) << std::endl;	//@ C
+
+
+	PRINT(GREEN("cm"))
+	print_map(cm);
+	CIter r = cm.find(42);
+	if (r != cm.end())
+		std::cout << BLUE("Found ") << r->first << std::endl;
+	else
+		std::cout << RED("Cannot found") << std::endl;
+
+	r = cm.find(43);
+	if (r != cm.end())
+		std::cout << BLUE("Found ") << r->first << std::endl;
+	else
+		std::cout << RED("Cannot found") << std::endl;
+
+	std::cout << PURPLE("Count 42: ")  << cm.count(42) << std::endl;
+	std::cout << PURPLE("Count 43: ")  << cm.count(43) << std::endl;
+
+
+	std::cout << cm.lower_bound(100)->first << std::endl;	//@ C
+	std::cout << cm.upper_bound(100)->first << std::endl;	//@ C
+	Pair<CIter, CIter> range = cm.equal_range(100);
+
+
+	for (CIter f = range.first; f != range.second; f++)
+		std::cout << f->first << " ";
+	std::cout << std::endl;
+
+	Map<> m3;
+	PRINT(PURPLE("Insert" ) " to " BLUE("m3")  " by operator" PURPLE("[]"))
+
+	m3[0] = 'A';
+	m3[10] = 'B';
+	m3[100] = 'C';
+	m3[-1] = 'X';
+
+	print_map(m3);
+
+	PRINT(PURPLE("Modify" ) " mapped values of " BLUE("m3")  " by operator" PURPLE("[]"))
+
+	m3[0] = 'x';
+	m3[10] = 'y';
+	m3[100] = 'z';
+	m3[-1] = 'a';
+
+	print_map(m3);
+
+	for (CRIter f = m3.rbegin(); f != m3.rend(); f++)
+		std::cout << f->first << " ";
+	std::cout << std::endl;
+
+	for (CRIter f = cm.rbegin(); f != cm.rend(); f++)
+		std::cout << f->first << " ";
+	std::cout << std::endl;
+
+	// max_size	//@ C
+	// get_allocator //@ C
 }
 
 template<
@@ -55,8 +218,6 @@ void		vector_tester()
 	print_vector(v2);
 	PRINT(BLUE("v3 ( range constructed ) =>"))
 	print_vector(v3);
-
-
 
 	const Vec<> cv(v3);
 
@@ -197,14 +358,14 @@ int main(int argc, char** argv)
 	if (!input)
 	{
 		print_header(input);
-		vector_tester<int, std::vector>();
-		// map_tester<int, char, std::less, std::pair, std::map >();
+		// vector_tester<int, std::vector>();
+		map_tester<int, char, std::less, std::pair, std::map >();
 	}
 	else
 	{
 		print_header(input);
-		vector_tester<int, ft::vector>();
-		// map_tester<int, char, std::less, ft::pair, ft::map >();
+		// vector_tester<int, ft::vector>();
+		map_tester<int, char, std::less, ft::pair, ft::map >();
 	}
 	system("leaks a.out");
 

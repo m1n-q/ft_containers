@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 15:05:57 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/28 15:55:06 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/01 22:51:04 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,11 @@ public:
 private:
 	base_type   __base;
 public:
-    reverse_iterator()							: __base()				{}
-    explicit reverse_iterator(base_type b)		: __base(b)				{}
-    template <class U>	// copy, type-cast constructor
-    reverse_iterator(reverse_iterator<U>& other): __base(other.base())	{}
+    reverse_iterator()							    : __base()				{}
+    explicit reverse_iterator(base_type b)		    : __base(b)				{}
+
+    template <class U>
+    reverse_iterator(const reverse_iterator<U>& other): __base(other.base())	{}
 
 public:
 /**========================================================================
@@ -49,11 +50,11 @@ public:
 *========================================================================**/
 	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
 	reference			operator*() const						{ Iter tmp(__base); return *(--tmp); }
-    pointer				operator->() const						{ return (&operator*()); }          // ! check
+    pointer				operator->() const						{ return (&operator*()); }
     reverse_iterator	operator++()							{ --__base; return *this; }
-    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__base; return tmp; } // !
+    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__base; return tmp; }
     reverse_iterator&	operator--()							{ ++__base; return *this; }
-    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__base; return tmp; }	// !
+    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__base; return tmp; }
     reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(__base - n); }
     reverse_iterator&	operator+=(difference_type n)			{ __base -= n; return *this; }
     reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(__base + n); }

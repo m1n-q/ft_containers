@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/30 19:55:52 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/01 22:44:51 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,8 @@
 
 /**------------------------------------------------------------------------
  * 								//TODO
- * ! impl max_size()
- *  checking CopyConstructible / DefaultConstructible ?
  *
- * ! map_iter operators
- * !!!!!!! check complexity, perfomance
+ * ' type check for InputIterator
  *------------------------------------------------------------------------**/
 
 
@@ -155,14 +152,6 @@ public:
 /**========================================================================
 * *                            operators
 *========================================================================**/
-	mapped_type&	operator[] (const key_type& k)
-	{
-		return insert(ft::make_pair(k, mapped_type())).first->second;
-
-		// 	insert (key, mapped_type with default constructor);
-		//@ key_type must meet the requirements of CopyConstructible.
-		//@ mapped_type must meet the requirements of CopyConstructible and DefaultConstructible.
-	}
 
 	map&			operator=(const map& src)
 	{
@@ -172,18 +161,28 @@ public:
 
 		return *this;
 	}
+
+	mapped_type&	operator[] (const key_type& k)
+	{
+		return insert(ft::make_pair(k, mapped_type())).first->second;
+
+		// 	insert (key, mapped_type with default constructor);
+		//@ key_type must meet the requirements of CopyConstructible.
+		//@ mapped_type must meet the requirements of CopyConstructible and DefaultConstructible.
+	}
+
 /**========================================================================
 * #                          member functions
 *========================================================================**/
-	void d() {tree.d();}
+
 	iterator							begin()				{ return tree.begin(); }
 	const_iterator						begin() const		{ return tree.begin(); }
 	iterator							end()				{ return tree.end(); }
 	const_iterator						end() const			{ return tree.end(); }
 	reverse_iterator					rbegin()			{ return reverse_iterator(end());}
-	const_reverse_iterator				rbegin() const		{ return reverse_iterator(end());}
+	const_reverse_iterator				rbegin() const		{ return const_reverse_iterator(end());}
 	reverse_iterator					rend()				{ return reverse_iterator(begin());}
-	const_reverse_iterator				rend() const		{ return reverse_iterator(begin());}
+	const_reverse_iterator				rend() const		{ return const_reverse_iterator(begin());}
 	bool								empty() const		{ return (tree.size() == 0); }
 	size_type							size() const		{ return tree.size(); }
 	size_type							max_size() const	{ return tree.max_size(); }
@@ -211,27 +210,22 @@ public:
 	key_compare							key_comp() const							{ return tree.value_comp().key_comp(); }
 	value_compare						value_comp() const							{ return value_compare(tree.value_comp().key_comp()); }
 
-	iterator							find (const key_type& k)					{ return iterator(tree.find_key(k)); }
-	const_iterator 						find (const key_type& k) const				{ return const_iterator(tree.find_key(k)); }
-	size_type							count (const key_type& k) const				{ if (tree.find_key(k)) return 1; return 0;}
+	iterator							find (const key_type& k)					{ return iterator(tree.find(k)); }
+	const_iterator 						find (const key_type& k) const				{ return const_iterator(tree.find(k)); }
+	size_type							count (const key_type& k) const				{ if (find(k) != end()) return 1; return 0;}
 
 	iterator							lower_bound (const key_type& k)				{ return tree.lower_bound(k); }
 	const_iterator						lower_bound (const key_type& k) const		{ return tree.lower_bound(k); }
 	iterator							upper_bound (const key_type& k)				{ return tree.upper_bound(k); }
 	const_iterator						upper_bound (const key_type& k) const		{ return tree.upper_bound(k); }
-	pair<iterator,iterator>            	equal_range (const key_type& k)
-	{
-		pair<iterator, iterator>	tmp(tree.__lower_bound(k),
-										tree.__upper_bound(k));
-		return tmp;
-	}
-
-	pair<const_iterator, const_iterator>		equal_range(const key_type& k) const
-	{
-		pair<const_iterator, const_iterator>	tmp(tree.lower_bound(k),
-													tree.upper_bound(k));
-		return tmp;
-	}
+	pair<iterator,
+		 iterator>						equal_range (const key_type& k)				{ return pair<iterator,
+		 																						  iterator>(tree.__lower_bound(k),
+																											tree.__upper_bound(k)); }
+	pair<const_iterator,
+		 const_iterator>				equal_range(const key_type& k) const		{ return pair<const_iterator,
+		 																						  const_iterator>(tree.lower_bound(k),
+																												  tree.upper_bound(k)); }
 
 	allocator_type						get_allocator() const						{ return tree.get_allocator(); };
 

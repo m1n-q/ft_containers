@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 20:50:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/31 15:45:32 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/01 19:16:56 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,16 @@ void	print_vector(const Vec& v )
 }
 
 template <class Map>
-void	print_map(const Map& v )
+void	print_map(const Map& m )
 {
 	typename Map::const_iterator	it;
 
 	std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl;
-	for (it = v.begin(); it != v.end(); it++)
+	for (it = m.begin(); it != m.end(); it++)
 		std::cout << "[" << it->first << ", " << it->second << "] ";
 	std::cout << std::endl;
 
-	std::cout << "SIZE	=> " << v.size() << std::endl;
+	std::cout << "SIZE	=> " << m.size() << std::endl;
 
 	std::cout << "━━━━━━━━━━━━━━━━━━━━━━━━" << std::endl << std::endl;
 }

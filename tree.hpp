@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/31 23:42:43 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/01 22:07:45 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,23 @@ public:
 	// 	else
 	// 		return p;
 	// }
+
+
+	iterator find(const key_type& k)
+	{
+		NodePtr	result = find_key(k);
+		if (!result)
+			return end();
+		return iterator(result);
+	}
+
+	const_iterator find(const key_type& k) const
+	{
+		NodePtr	result = find_key(k);
+		if (!result)
+			return end();
+		return const_iterator(result);
+	}
 
 	NodePtr find_key(const key_type& k) const
 	{
