@@ -2,6 +2,7 @@
 #include <__tree>
 #include <algorithm>
 #include <cstddef>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <ios>
@@ -43,11 +44,29 @@ bool sorted(ForwardIterator first, ForwardIterator last)
 	return last == l;
 }
 
+template <class ForwardIterator>
+bool sorted_rev(ForwardIterator first, ForwardIterator last)
+{
+	ForwardIterator l = last;
+	if (first != last)
+	{
+		ForwardIterator i = first;
+		while (++i != last)
+		{
+			if (std::greater<int>()(i->first, first->first))
+				return false;
+			first = i;
+		}
+	}
+	return last == l;
+}
+
+
 template<typename K,
 		 typename V,
 		 template <typename, typename> class P,
 		 template<typename, typename, typename, typename> class Map>
-void	test_func()
+void	test_func(int seed)
 {
 	typedef P<const K, V>					PAIR;
 	typedef Map<
@@ -61,8 +80,9 @@ void	test_func()
 	// typedef typename MAP::const_iterator	CITER;
 
 	MAP		m;
-	int	size = 20;
+	int	size = 1000000;
 	std::vector<K> keys;
+	srand(seed);
 
 	START
 	for (int i = 0; i < size; i++)
@@ -75,16 +95,15 @@ void	test_func()
 	// for (ITER f = m.begin(); f != m.end(); f++)
 	// 	std::cout<<  f->first << std::endl;
 
-	m.d();
+	// m.d();
 
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < (size / 100); i++)
 	{
 		int randidx = rand() % size;
 		try
 		{
 			keys.at(randidx);
-			std::cout << "REMOVE " << keys[randidx] << std::endl;
 			m.erase(keys[randidx]);
 			keys.erase(keys.begin() + randidx);
 			// m.d();
@@ -95,14 +114,35 @@ void	test_func()
 		}
 	}
 
+	for (int i = 0; i < size; i++)
+	{
+		int key = rand();
+		keys.push_back(key);
+		m.insert(PAIR(key, 'a'));
+	}
+
 	// printf("\n");
 
-	m.d();
+	// m.d();
 	std::cout << std::boolalpha;
+	std::cout << "SIZE = " << m.size() << std::endl;
 	std::cout << (
 					sorted(m.begin(), m.end()) ?
 					"\033[32mSORTED!" :
-					"\033[30mNOT SORTED!"
+					"\033[34mNOT SORTED!"
+				)
+	<< "\033[0m" << std::endl;
+	std::cout << (
+					sorted_rev(m.begin(), m.end()) ?
+					"\033[32mSORTED!" :
+					"\033[34mNOT SORTED!"
+				)
+	<< "\033[0m" << std::endl;
+
+	std::cout << (
+					sorted_rev(m.rbegin(), m.rend()) ?
+					"\033[32mSORTED!" :
+					"\033[34mNOT SORTED!"
 				)
 	<< "\033[0m" << std::endl;
 
@@ -115,20 +155,19 @@ int main(int argc, char** argv)
 {
 
 	std::cout<< std::boolalpha;
-	if (argc != 2)
+	if (argc != 3)
 		return -1;
 
-	int input = atoi((argv[1]));
+	int input = atoi(argv[1]);
 	if (!input)
 	{
 		print_header(input);
-		// test_func<int, char, std::pair, std::map>();
-
+		test_func<int, char, std::pair, std::map>(atoi(argv[2]));
 	}
 	else
 	{
 		print_header(input);
-		test_func<int, char, ft::pair, ft::map>();
+		test_func<int, char, ft::pair, ft::map>(atoi(argv[2]));
 	}
 	// system("leaks a.out");
 
