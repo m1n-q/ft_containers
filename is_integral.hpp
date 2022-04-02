@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 17:13:22 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/02 22:37:09 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ template <int> struct sfinaer { };
 template <class From, class To> struct is_convertible
 {
 private:
-	static From getFromType() {From tmp; return tmp;};
+	static From		getFromType() {From tmp; return tmp;};
 	template <class T>
 	static int		test(...);
 	template <class T>

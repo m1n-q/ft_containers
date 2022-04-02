@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 15:05:57 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/01 22:51:04 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/02 23:32:09 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,44 +25,44 @@ struct iterator_traits;
 template <class Iter>
 class reverse_iterator
 {
-public:
 /**========================================================================
 * '                              typedef
 *========================================================================**/
-	typedef Iter													base_type;
-	typedef typename iterator_traits<base_type>::difference_type	difference_type;
-    typedef typename iterator_traits<base_type>::value_type			value_type;
-    typedef typename iterator_traits<base_type>::pointer			pointer;
-    typedef typename iterator_traits<base_type>::reference			reference;
-    typedef typename iterator_traits<base_type>::iterator_category	iterator_category;
-private:
-	base_type   __base;
 public:
-    reverse_iterator()							    : __base()				{}
-    explicit reverse_iterator(base_type b)		    : __base(b)				{}
+	typedef Iter													    iterator_type;
+	typedef typename iterator_traits<iterator_type>::difference_type	difference_type;
+    typedef typename iterator_traits<iterator_type>::value_type			value_type;
+    typedef typename iterator_traits<iterator_type>::pointer			pointer;
+    typedef typename iterator_traits<iterator_type>::reference			reference;
+    typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
+
+private:
+	iterator_type   current;
+
+public:
+    reverse_iterator()							   : current()				{}
+    explicit reverse_iterator(iterator_type b)	   : current(b)				{}
 
     template <class U>
-    reverse_iterator(const reverse_iterator<U>& other): __base(other.base())	{}
-
-public:
+    reverse_iterator(const reverse_iterator<U>& other): current(other.base())	{}
 /**========================================================================
 * *                            operators										//TODO: CHECK
 *========================================================================**/
 	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
-	reference			operator*() const						{ Iter tmp(__base); return *(--tmp); }
-    pointer				operator->() const						{ return (&operator*()); }
-    reverse_iterator	operator++()							{ --__base; return *this; }
-    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --__base; return tmp; }
-    reverse_iterator&	operator--()							{ ++__base; return *this; }
-    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++__base; return tmp; }
-    reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(__base - n); }
-    reverse_iterator&	operator+=(difference_type n)			{ __base -= n; return *this; }
-    reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(__base + n); }
-    reverse_iterator&	operator-=(difference_type n)			{ __base += n; return *this; }
+	reference			operator*() const						{ Iter tmp(current); return *(--tmp); }
+    pointer				operator->() const						{ return &(operator*()); }
+    reverse_iterator&	operator++()							{ --current; return *this; }
+    reverse_iterator	operator++(int)							{ reverse_iterator tmp(*this); --current; return tmp; }
+    reverse_iterator&	operator--()							{ ++current; return *this; }
+    reverse_iterator	operator--(int)							{ reverse_iterator tmp(*this); ++current; return tmp; }
+    reverse_iterator	operator+ (difference_type n) const		{ return reverse_iterator(current - n); }
+    reverse_iterator&	operator+=(difference_type n)			{ current -= n; return *this; }
+    reverse_iterator	operator- (difference_type n) const		{ return reverse_iterator(current + n); }
+    reverse_iterator&	operator-=(difference_type n)			{ current += n; return *this; }
     reference			operator[](difference_type n) const		{ return *(*this + n); }
 
 
-    base_type			base(void) const						{ return this->__base; }
+    iterator_type		base(void) const						{ return this->current; }
 };
 
 template <class Iter1, class Iter2>

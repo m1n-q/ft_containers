@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 20:50:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/01 19:16:56 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/02 22:30:42 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # define START					std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 # define END					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();std::cout<< "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
 # define PRINT(x)				std::cout<< x << std::endl;
+# define SHOW(...)				std::cout << std::setw(29) << #__VA_ARGS__ << " == " << __VA_ARGS__ << '\n'
 
 void	print_header(int input)
 {
