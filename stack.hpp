@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 12:37:00 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/24 22:24:32 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 02:41:18 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,7 @@
 # include <cstddef>
 # include <stack>
 
-/*
-	! Your stack will use your vector class as default underlaying container,
-	! it must still be compatible with others containers like the STL one
-*/
+
 namespace ft
 {
 

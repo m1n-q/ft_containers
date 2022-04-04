@@ -6,24 +6,35 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 15:05:57 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 23:32:09 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 02:36:12 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REVERSE_ITERATOR_HPP
 # define REVERSE_ITERATOR_HPP
-
-/**----------------------------------------------------------------------------
- * ! check reverse_iterator
- *----------------------------------------------------------------------------*/
+# include <cstddef>
 
 namespace ft
 {
+template <
+            class Category,
+            class T,
+            class Distance,
+            class Pointer,
+            class Reference
+        >
+struct iterator;
+
 template <class T>
 struct iterator_traits;
 
 template <class Iter>
 class reverse_iterator
+: public iterator<    typename iterator_traits<Iter>::iterator_category,
+                      typename iterator_traits<Iter>::value_type,
+                      typename iterator_traits<Iter>::difference_type,
+                      typename iterator_traits<Iter>::pointer,
+                      typename iterator_traits<Iter>::reference>
 {
 /**========================================================================
 * '                              typedef

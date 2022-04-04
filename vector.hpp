@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 23:03:31 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 02:38:31 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-#include <algorithm>
-#include <cstddef>
+// #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
 #include <stdexcept>
 # include <memory>
 # include "iterator.hpp"
+# include "wrap_iter.hpp"
 # include "pair.hpp"
 # include "utils.hpp"
 
@@ -41,32 +41,6 @@
  * * Less cumbersome implementation techniques also exist. —end note]
  *
  *--------------------------------------------------------------------------**/
-
-
-
-/**------------------------------------------------------------------------
- * 								//TODO
- *
- * * const testcase
- *
- * * LEAK => check done!
- * * swap() => check done!
- * * operator=() => check done!
- * * enable_if<is_input_iterator> => recovery done!
- * * constructors => check done!
- * * impl reserve()	=> check done!
- * * insert(pos, first, last) => check done!
- * * insert(pos, val) => check done!
- * * insert(pos, n, val) => check done!
- * * pop_back() => check done!
- * * empty, size => check done!
- * * [], at, front, back => check done!
- * * push_back() => check done!
- * * assign() => check done!
- * * erase() => check done!
- * * clear() => check done!
- *
- *------------------------------------------------------------------------**/
 namespace ft
 {
 
@@ -95,7 +69,7 @@ protected:
 	pointer							__begin_;
 	pointer							__end_;
 	pointer							__end_cap_;
-	size_type						__size_;		//NOTE: no use in std?
+	size_type						__size_;
 	allocator_type					__alloc_;
 /**========================================================================
 * @                           Constructors
@@ -125,7 +99,7 @@ public:
 						}
 					 }
 
-	template <class InputIterator>
+	 template <class InputIterator>
 	 vector( typename enable_if<is_input_iterator<InputIterator>::value,
 	 		 InputIterator>::type first,
 	 		 InputIterator last,
@@ -159,8 +133,7 @@ public:
 						if (n > 0)
 						{
 							vallocate(n);
-							for (const_iterator it = src.begin();it != src.end(); ++it)
-								push_back(*it);
+							construct_at_end(src.begin(), src.end());
 						}
 					}
 
@@ -202,7 +175,7 @@ public:
 
 //' capacity
 	size_type				size() const			{ return this->__size_; }
-	size_type				max_size() const		{ return std::min<size_type>(std::numeric_limits<difference_type>::max(), this->__alloc().max_size()); }	//NOTE: min OK?
+	size_type				max_size() const		{ return min<size_type>(std::numeric_limits<difference_type>::max(), this->__alloc().max_size()); }
 	size_type				capacity() const		{ return static_cast<size_type>(__end_cap() - __begin_); }
 	bool					empty() const			{ return (this->__size_ == 0); }
 	void					reserve(size_type n)	{ if (n > capacity()) reserve_impl(n); }
@@ -463,7 +436,7 @@ private:
 		if (new_size > ms)	std::__throw_length_error("vector");
 		if (cap >= ms / 2)	return ms;
 
-		return std::max(2 * cap, new_size);
+		return max(2 * cap, new_size);
 	}
 
 	void			construct_at_end(size_type n)

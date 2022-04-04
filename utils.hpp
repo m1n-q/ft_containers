@@ -6,14 +6,13 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 17:39:36 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/30 19:47:04 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 03:10:53 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef UTILS_HPP
 # define UTILS_HPP
-
 
 template <class Alloc, class T>
 void construct_backward(Alloc& alloc, T* first, T* last, T* target)
@@ -41,15 +40,6 @@ void destruct_backward(Alloc& alloc, T* first, T* last)
 {
 	while (last != first)
 		alloc.destroy(--last);
-}
-
-template <class InputIterator>
-bool equal(InputIterator first1, InputIterator last1, InputIterator first2)
-{
-	for (; first1 != last1; ++first1, (void) ++first2)
-        if (*first1 != *first2)
-            return false;
-    return true;
 }
 
 template <class T>

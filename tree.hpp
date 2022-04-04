@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/01 22:07:45 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 03:08:32 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ protected:
 	size_type		_size;
 	NodePtr			_root;
 	NodePtr			_begin_node;	// in-order
-	NodePtr			_end_node;		// in-order
+	NodePtr			_end_node;
 
 	NodePtr			_after_end;		// dummy node for next(_end_node), outside of tree.
 
@@ -211,18 +211,6 @@ public:
 		__swap(_vc, t._vc);
 	}
 
-	//NOTE: only const ver is OK?
-	// NodePtr find_key(const key_type& k)
-	// {
-	// 	NodePtr p = find_location(k);
-
-	// 	if (p == NULL || p->val.first != k)
-	// 		return NULL;
-	// 	else
-	// 		return p;
-	// }
-
-
 	iterator find(const key_type& k)
 	{
 		NodePtr	result = find_key(k);
@@ -258,8 +246,6 @@ public:
 		_begin_node = _after_end;
 	}
 
-
-	//NOTE: only const version? return NodePtr and construct iterator outside?
 	iterator	lower_bound(const key_type& k)
 	{
 		NodePtr	v		= _root;
@@ -298,8 +284,6 @@ public:
 		return const_iterator(result);
 	}
 
-
-	//NOTE: only const version? return NodePtr and construct iterator outside?
 	iterator	upper_bound(const key_type& k)
 	{
 		NodePtr	v		= _root;
@@ -561,22 +545,22 @@ private:
 	}
 
 
-	//NOTE: only const version?
-	NodePtr	find_location(const key_type& k)
-	{
-		if (this->_size == 0)			{ return NULL; }
+	// //NOTE: only const version?
+	// NodePtr	find_location(const key_type& k)
+	// {
+	// 	if (this->_size == 0)			{ return NULL; }
 
-		NodePtr p = NULL;
-		NodePtr v = _root;
+	// 	NodePtr p = NULL;
+	// 	NodePtr v = _root;
 
-		while (v != NULL)
-		{
-			if			(value_comp()(k, v->val)) 		{ p = v; v = v->left; }
-			else if		(value_comp()(v->val, k))		{ p = v; v = v->right; }
-			else										{ return v; }
-		}
-		return p;			// where val to be inserted (parent)
-	}
+	// 	while (v != NULL)
+	// 	{
+	// 		if			(value_comp()(k, v->val)) 		{ p = v; v = v->left; }
+	// 		else if		(value_comp()(v->val, k))		{ p = v; v = v->right; }
+	// 		else										{ return v; }
+	// 	}
+	// 	return p;			// where val to be inserted (parent)
+	// }
 
 	NodePtr	find_location(const key_type& k) const
 	{
@@ -594,9 +578,7 @@ private:
 		return p;			// where val to be inserted (parent)
 	}
 
-
-	//NOTE: need const version?
-	NodePtr	find_location_hint(iterator hint, const key_type& k)
+	NodePtr	find_location_hint(iterator hint, const key_type& k) const
 	{
 		if (this->_size == 0)			{ return NULL; }
 
@@ -933,11 +915,7 @@ private:
 	{
 
 		NodePtr	newz = z;
-		// if (!(x && y && z))								return newz;
-		// else if	(z->left == y && y->left == x)			{ rotate_right(z); newz = y ; }
-		// else if	(z->right == y && y->right == x)		{ rotate_left(z); newz = y; }
-		// else if	(z->left == y && y->right == x) 		{ rotate_left(y); rotate_right(z); newz = x; }
-		// else if	(z->right == y && y->left == x)			{ rotate_right(y); rotate_left(z); newz = x; }
+
 		if (z)
 		{
 			if (z->bf == -2)
@@ -952,10 +930,6 @@ private:
 					rotate_right(z->right);
 				rotate_left(z);
 			}
-			// if		(z->bf == -2 && z->left->bf == -1)	{ rotate_right(z); }
-			// else if (z->bf == +2 && z->right->bf == +1)	{ rotate_left(z); }
-			// else if (z->bf == -2 && z->left->bf == +1)	{ rotate_left(z->left); rotate_right(z); }
-			// else if (z->bf == +2 && z->right->bf == -1)	{ rotate_right(z->right); rotate_left(z);}
 			newz = z->parent;
 		}
 		return newz;
@@ -974,103 +948,12 @@ private:
 
 	bool		is_balanced(NodePtr z)
 	{
-		// if (get_bf(z) >=2)
-		// 	return false;
-		// return true;
 		if (!z)
-			return true; 	//WARN
+			return true;
 		if (z->bf < -1 || z->bf > 1)
 			return false;
 		return true;
 	}
-
-	NodePtr		get_heavier_subtree(NodePtr x)
-	{
-		return (base::get_height(x->left) > base::get_height(x->right)) ?		// select heavier subtree
-				x->left : x->right;
-	}
-
-public:
-void d()
-{
-	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
-	display(this->_root, 1);
-	printf("\n\n");
-	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
-}
-void display(NodePtr ptr, int level)
-{
-    int i;
-    if (ptr != NULL) {
-        display(ptr->right, level + 1);
-        printf("\n");
-
-
-		for (i = 0; i < level && ptr != this->_root; i++)
-		{
-			if (i == level - 1)
-				printf("           ");
-
-			else if (i == level - 2)
-				printf("            ┃");
-			else
-			{
-
-        		printf("            ┃");
-			}
-        }
-		if (ptr == this->_root)
-			printf("           ");
-		printf("[\033[32m%hhd\033[0m]\n", ptr->bf );
-
-		if (ptr == this->_root)
-            printf("Root -> ");
-
-		for (i = 0; i < level && ptr != this->_root; i++)
-		{
-
-			if (i == level -1)
-			{
-				if (ptr != this->_root && is_left_child(ptr))
-				{
-					printf("\b┗━━━━━━━━━━━");
-					break;
-				}
-				else if (ptr != this->_root && is_right_child(ptr))
-				{
-
-					printf("\b┏━━━━━━━━━━━");
-					break;
-				}
-				else
-				{
-					printf("           ");
-				}
-			}
-
-			else
-        		printf("            ┃");
-
-        }
-        printf("\033[92;35m%d\033[0m\n", ptr->val.first);
-
-
-		for (i = 0; i < level && ptr != this->_root; i++)
-		{
-			if (i == level - 1)
-				printf("           ");
-			else if (i == level - 2)
-				printf("            ┃");
-			else
-        		printf("            ┃");
-        }
-		if (ptr == this->_root)
-			printf("           ");
-		printf("[\033[92;34m%d\033[0m]",(ptr->parent ? ptr->parent->val.first: 0) );
-
-        display(ptr->left, level + 1);
-    }
-}
 };
 
 

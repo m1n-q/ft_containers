@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/03/29 19:54:27 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 03:06:10 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 namespace ft
 {
-template <class _Key, class _Value>   class Node_kv;
+template <class Key, class Value>   class Node_kv;
 
 template <class NodeType, class DiffType>
 class tree_iterator
@@ -198,8 +198,7 @@ public:
 
 	// conversion from iter to const_iter
 	// opposite is not viable
-	const_wrapper(wrapper<non_const_iterator> w)	: Base(static_cast<non_const_iterator>(w).ptr) {}		// w.ptr is private...! w::Base::ptr was pubilc
-														   //* or C style cast?
+	const_wrapper(wrapper<non_const_iterator> w)	: Base(static_cast<non_const_iterator>(w).ptr) {}
 	~const_wrapper() {}
 
 	const_wrapper& operator=(const const_wrapper& w)

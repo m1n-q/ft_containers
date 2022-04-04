@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/01 22:44:51 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 03:04:30 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,31 +21,21 @@
 # include "tree_iter.hpp"
 # include "algorithm.hpp"
 
-/**------------------------------------------------------------------------
- * 								//TODO
- *
- * ' type check for InputIterator
- *------------------------------------------------------------------------**/
-
-
 namespace ft
 {
 
-
+//wraper: allow to compare not only (value, value), but { (key, value) || (value, key) }
 template <class _Key, class _ValueTp, class _Compare>
-class compare_kv		//wraper: allow to compare not only (value, value), but { (key, value) || (value, key) }
+class compare_kv
 {
     _Compare comp;
 
 public:
     compare_kv()
-        // (is_nothrow_default_constructible<_Compare>::value)
         : comp() {}
-    compare_kv(_Compare comp)		//NOT USED?
-        // (is_nothrow_copy_constructible<_Compare>::value)
+    compare_kv(_Compare comp)
         : comp(comp) {}
 	compare_kv(const compare_kv& x)
-        // (is_nothrow_copy_constructible<_Compare>::value)
         : comp(x.comp) {}
 
 	~compare_kv() {}
@@ -69,11 +59,12 @@ public:
         {return comp(x, y.first);}
 };
 
-template < class Key,												// key_type
-           class T,													// mapped_type
-           class Compare	= std::less<Key>,						// key_compare
-           class Alloc		= std::allocator<pair<const Key,T> >	// allocator_type
-           >
+template <
+			class Key,												// key_type
+			class T,												// mapped_type
+			class Compare	= std::less<Key>,						// key_compare
+			class Alloc		= std::allocator<pair<const Key,T> >	// allocator_type
+        >
 class map
 {
 /**========================================================================
@@ -96,8 +87,7 @@ public:
 	class value_compare
         : public std::binary_function<value_type, value_type, bool>
     {
-		// ! Of course, for the implementation of map::value_compare, the keyword friend is allowed.
-        friend class map;	// why friends?
+        friend class map;
     protected:
         key_compare		comp;
 
@@ -165,10 +155,6 @@ public:
 	mapped_type&	operator[] (const key_type& k)
 	{
 		return insert(ft::make_pair(k, mapped_type())).first->second;
-
-		// 	insert (key, mapped_type with default constructor);
-		//@ key_type must meet the requirements of CopyConstructible.
-		//@ mapped_type must meet the requirements of CopyConstructible and DefaultConstructible.
 	}
 
 /**========================================================================
@@ -201,38 +187,38 @@ public:
 			insert(e, *first);
 	}
 
-	void								erase (iterator position) 					{ tree.remove(position); }
-	size_type							erase (const key_type& k) 					{ return tree.remove_key(k); }	// return #erased
-	void								erase (iterator first, iterator last)		{ while (first != last) erase(first++); }
-	void								swap (map& x)								{ return tree.swap(x.tree); }
-	void								clear()										{ return tree.clear(); }
+	void								erase (iterator position) 				{ tree.remove(position); }
+	size_type							erase (const key_type& k) 				{ return tree.remove_key(k); }	// return #erased
+	void								erase (iterator first, iterator last)	{ while (first != last) erase(first++); }
+	void								swap (map& x)							{ return tree.swap(x.tree); }
+	void								clear()									{ return tree.clear(); }
 
-	key_compare							key_comp() const							{ return tree.value_comp().key_comp(); }
-	value_compare						value_comp() const							{ return value_compare(tree.value_comp().key_comp()); }
+	key_compare							key_comp() const						{ return tree.value_comp().key_comp(); }
+	value_compare						value_comp() const						{ return value_compare(tree.value_comp().key_comp()); }
 
-	iterator							find (const key_type& k)					{ return iterator(tree.find(k)); }
-	const_iterator 						find (const key_type& k) const				{ return const_iterator(tree.find(k)); }
-	size_type							count (const key_type& k) const				{ if (find(k) != end()) return 1; return 0;}
+	iterator							find (const key_type& k)				{ return iterator(tree.find(k)); }
+	const_iterator 						find (const key_type& k) const			{ return const_iterator(tree.find(k)); }
+	size_type							count (const key_type& k) const			{ if (find(k) != end()) return 1; return 0;}
 
-	iterator							lower_bound (const key_type& k)				{ return tree.lower_bound(k); }
-	const_iterator						lower_bound (const key_type& k) const		{ return tree.lower_bound(k); }
-	iterator							upper_bound (const key_type& k)				{ return tree.upper_bound(k); }
-	const_iterator						upper_bound (const key_type& k) const		{ return tree.upper_bound(k); }
+	iterator							lower_bound (const key_type& k)			{ return tree.lower_bound(k); }
+	const_iterator						lower_bound (const key_type& k) const	{ return tree.lower_bound(k); }
+	iterator							upper_bound (const key_type& k)			{ return tree.upper_bound(k); }
+	const_iterator						upper_bound (const key_type& k) const	{ return tree.upper_bound(k); }
 	pair<iterator,
-		 iterator>						equal_range (const key_type& k)				{ return pair<iterator,
-		 																						  iterator>(tree.__lower_bound(k),
-																											tree.__upper_bound(k)); }
+		 iterator>						equal_range (const key_type& k)			{ return pair<iterator,
+		 																					  iterator>(tree.__lower_bound(k),
+																										tree.__upper_bound(k)); }
 	pair<const_iterator,
-		 const_iterator>				equal_range(const key_type& k) const		{ return pair<const_iterator,
-		 																						  const_iterator>(tree.lower_bound(k),
-																												  tree.upper_bound(k)); }
+		 const_iterator>				equal_range(const key_type& k) const	{ return pair<const_iterator,
+		 																					  const_iterator>(tree.lower_bound(k),
+																											  tree.upper_bound(k)); }
 
-	allocator_type						get_allocator() const						{ return tree.get_allocator(); };
+	allocator_type						get_allocator() const					{ return tree.get_allocator(); };
 
 };
 
 /**========================================================================
-* *                        relational-operators
+* *                        non-member operators
 *========================================================================**/
 template <class Key, class T, class Compare, class Alloc>
 bool operator== (const map<Key, T, Compare, Alloc>& lhs,

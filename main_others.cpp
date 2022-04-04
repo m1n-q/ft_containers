@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/02 21:47:08 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 23:40:04 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 03:00:47 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 
 /**------------------------------------------------------------------------
  * #                            CHECK
- * ' iterators_traits
- * @ reverse_iterator
+ * @ iterators_traits
+ * @ reverse_iterator //! derived from class iterator
  * @ enable_if
  * @ is_integral
  * @ equal and/or lexicographical_compare
@@ -32,21 +32,33 @@
 #include <iostream>     // std::cout
 #include <iterator>     // std::reverse_iterator
 #include <vector>       // std::vector
+#include <map>       // std::vector
+#include "map.hpp"       // std::vector
 #include "vector.hpp"       // std::vector
+#include "printer.hpp"       // std::vector
 
 int main () {
-  ft::vector<int> myvector;
-  for (int i=0; i<10; i++) myvector.push_back(i);
 
-  typedef ft::vector<int>::iterator iter_type;
+  std::map<int, int> m;
+  std::map<int, int> m2;
 
-  ft::reverse_iterator<iter_type> rev_end (myvector.begin());
-  ft::reverse_iterator<iter_type> rev_begin (myvector.end());
+  m.insert(std::make_pair(1, 2));
 
-  std::cout << "myvector:";
-  for (iter_type it = rev_end.base(); it != rev_begin.base(); ++it)
-    std::cout << ' ' << *it;
-  std::cout << '\n';
+  print_map(m);
+  print_map(m2);
+  std::cout << (m.begin() == m.end()) << std::endl;
+  std::cout << (m2.begin() == m2.end()) << std::endl;
 
-  return 0;
+  m.swap(m2);
+
+  print_map(m);
+  print_map(m2);
+  std::cout << (m.begin() == m.end()) << std::endl;
+  std::cout << (m2.begin() == m2.end()) << std::endl;
+  m2.erase(m2.begin());
+  print_map(m);
+  print_map(m2);
+
+  std::cout << (m == m2) << std::endl;
+
 }

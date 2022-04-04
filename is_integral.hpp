@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 22:37:09 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 02:16:21 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,23 +57,6 @@ template <> 		struct is_integral_base<unsigned long long>	: true_type {};	//'
 template <class T>	struct is_integral
 : is_integral_base<typename remove_cv<T>::type> {};
 
-template <class T> struct is_pointer		: public false_type	{};
-template <class T> struct is_pointer<T*>	: public true_type	{};
-
-
-template <int> struct sfinaer { };
-template <class From, class To> struct is_convertible
-{
-private:
-	static From		getFromType() {From tmp; return tmp;};
-	template <class T>
-	static int		test(...);
-	template <class T>
-	static char		test(sfinaer<sizeof(static_cast<T>(getFromType()))>* = NULL);
-
-public:
-	const static bool value = (sizeof(test<To>(0)) == 1);
-};
 }
 
 #endif
