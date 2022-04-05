@@ -10,8 +10,6 @@
 #include "stack.hpp"
 
 
-
-
 template<
 			class T,
 			template <class = T, class = std::allocator<T> > class Cont,
@@ -19,6 +17,7 @@ template<
 		>
 void		stack_tester()
 {
+	print_cheader("STACK");
 	Stack<>	s;
 
 	PRINT(CYAN("s") " is empty?")	std::cout << s.empty() << std::endl;
@@ -69,6 +68,7 @@ template<
 		>
 void		map_tester()
 {
+	print_cheader("MAP");
 	typedef typename Map<>::iterator				Iter;
 	typedef typename Map<>::const_iterator			CIter;
 	// typedef typename Map<>::reverse_iterator		RIter;
@@ -107,6 +107,7 @@ void		map_tester()
 
 	Pair<Iter, bool>	result;
 
+	PRINT("insert to " CYAN("m1"))
 	for (int i = 0; i < 5; i++)
 	{
 		result = m1.insert(Pair<>(rand() % 1024, 'z'));
@@ -116,14 +117,14 @@ void		map_tester()
 			std::cout << result.first->first << RED(" already exists!") << std::endl;
 	}
 	print_map(m1);
+
 	result = m1.insert(Pair<>(666, 'T'));
-	if (result.second == true)
-		std::cout << result.first->first << BLUE(" is inserted") << std::endl;
-	else
-		std::cout << result.first->first << RED(" already exists") << std::endl;
+	if (result.second == true)	std::cout << result.first->first << BLUE(" is inserted") << std::endl;
+	else						std::cout << result.first->first << RED(" already exists") << std::endl;
 
 	PRINT("insert 667 to " CYAN("m1") ", near 666 ");
-	m1.insert(m1.find(666), Pair<>(667, 'N'));
+	Iter pos = m1.find(666);
+	result.first = m1.insert(pos, Pair<>(667, 'N'));
 	print_map(m1);
 
 	PRINT(GREEN("cm"))
@@ -193,16 +194,12 @@ void		map_tester()
 	PRINT(GREEN("cm"))
 	print_map(cm);
 	CIter r = cm.find(42);
-	if (r != cm.end())
-		std::cout << BLUE("Found ") << r->first << std::endl;
-	else
-		std::cout << RED("Cannot found") << std::endl;
+	if (r != cm.end())	std::cout << BLUE("Found ") << r->first << std::endl;
+	else				std::cout << RED("Cannot found") << std::endl;
 
 	r = cm.find(43);
-	if (r != cm.end())
-		std::cout << BLUE("Found ") << r->first << std::endl;
-	else
-		std::cout << RED("Cannot found") << std::endl;
+	if (r != cm.end())	std::cout << BLUE("Found ") << r->first << std::endl;
+	else				std::cout << RED("Cannot found") << std::endl;
 
 	std::cout << PURPLE("Count 42: ")  << cm.count(42) << std::endl;
 	std::cout << PURPLE("Count 43: ")  << cm.count(43) << std::endl;
@@ -244,6 +241,12 @@ void		map_tester()
 		std::cout << f->first << " ";
 	std::cout << std::endl;
 
+	PRINT(YELLOW("m2"))
+	print_map(m2);
+	r = m2.find(42);
+	if (r != m2.end())	std::cout << BLUE("Found ") << r->first << std::endl;
+	else				std::cout << RED("Cannot found") << std::endl;
+
 	// max_size	//@ C
 	// get_allocator //@ C
 }
@@ -254,7 +257,7 @@ template<
 		>
 void		vector_tester()
 {
-
+	print_cheader("VECTOR");
 	T		arr[4] = {11, 22, 33, 44};
 
 	Vec<>	v1;
@@ -291,11 +294,9 @@ void		vector_tester()
 
 	std::cout << CYAN("v1") " is Empty?\t" << v1.empty() << std::endl;
 	std::cout << GREEN("cv") " is Empty?\t" << cv.empty() << std::endl;	// @ C
+	std::cout << std::endl;
 
-	// size()		// @ C
-	// capacity()	// @ C
-
-	PRINT("current state of" YELLOW("v2"))
+	PRINT("current state of " YELLOW("v2"))
 	print_vector(v2);
 
 	PRINT("after "YELLOW("v2") ".reserve(1)")
@@ -305,9 +306,6 @@ void		vector_tester()
 	PRINT("after "YELLOW("v2") ".reserve(10)")
 	v2.reserve(10);
 	print_vector(v2);
-
-
-	//TODO:resize()
 
 //' element
 
@@ -324,17 +322,20 @@ void		vector_tester()
 // {	cv[0] = 1;	// cannot assign to const iter
 
 
-	PRINT("const cv.at(10) => ")
-	try							{ std::cout<< cv.at(10) << std::endl; } 	// @ C
+	PRINT(GREEN("const cv") ".at(10) => ")
+	try							{ std::cout<< cv.at(10) << std::endl; }
 	catch (std::exception& e)	{ std::cerr << e.what() << std::endl; }
 
+	PRINT(GREEN("const cv") ".at(1) => ")
+	try							{ std::cout<< cv.at(1) << std::endl; }
+	catch (std::exception& e)	{ std::cerr << e.what() << std::endl; }
 
-	PRINT("front() && back() of const cv")
-	std::cout << cv.front() << std::endl;	// @ C
-	std::cout << cv.back() << std::endl;	// @ C
+	PRINT("front() && back() of " GREEN("const cv"))
+	std::cout << cv.front() << std::endl;
+	std::cout << cv.back() << std::endl;
 
 
-	PRINT("current state of v1")
+	PRINT("current state of " CYAN("v1"))
 	print_vector(v1);
 	for (int i = 0; i < 42; i++)
 		v1.push_back(i);
@@ -346,7 +347,7 @@ void		vector_tester()
 	v1.assign(3, 99);
 	print_vector(v1);
 
-	PRINT(CYAN("v1.pop_back()"))
+	PRINT(CYAN("v1") ".pop_back()")
 	v1.pop_back();	// try at empty vector
 	print_vector(v1);
 
@@ -421,16 +422,16 @@ int main(int argc, char** argv)
 	{
 		print_header(input);
 		vector_tester<int, std::vector>();
-		// map_tester<int, char, std::less, std::pair, std::map >();
-		// stack_tester<int, std::vector, std::stack >();
+		map_tester<int, char, std::less, std::pair, std::map >();
+		stack_tester<int, std::vector, std::stack >();
 	}
 	else
 	{
 		print_header(input);
 		vector_tester<int, ft::vector>();
-		// map_tester<int, char, std::less, ft::pair, ft::map >();
-		// stack_tester<int, ft::vector, ft::stack >();
+		map_tester<int, char, std::less, ft::pair, ft::map >();
+		stack_tester<int, ft::vector, ft::stack >();
 	}
-	system("leaks a.out");
+	// system("leaks a.out");
 
 }

@@ -6,13 +6,12 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 15:05:57 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:36:12 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 17:29:35 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REVERSE_ITERATOR_HPP
 # define REVERSE_ITERATOR_HPP
-# include <cstddef>
 
 namespace ft
 {
@@ -57,7 +56,7 @@ public:
     template <class U>
     reverse_iterator(const reverse_iterator<U>& other): current(other.base())	{}
 /**========================================================================
-* *                            operators										//TODO: CHECK
+* *                            operators
 *========================================================================**/
 	// ' Internally, the function decreases a copy of its base iterator and returns the result of dereferencing it.
 	reference			operator*() const						{ Iter tmp(current); return *(--tmp); }

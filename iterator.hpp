@@ -6,20 +6,15 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 16:57:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:40:30 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:55:19 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ITERATOR_HPP
 # define ITERATOR_HPP
 
-#include <cstddef>
-#include <memory>
-
-#include "is_integral.hpp"
-#include "is_convertible.hpp"
-#include "enable_if.hpp"
-#include "reverse_iterator.hpp"
+# include "is_integral.hpp"
+# include "is_convertible.hpp"
 
  /**----------------------------------------------------------------------------
  *
@@ -53,10 +48,11 @@
 namespace ft
 {
 
+//NOTE: compatible with std? (ex. ft::vector(std::cont.begin(), std::cont.end()))
 struct input_iterator_tag												{};
 struct output_iterator_tag												{};
 struct forward_iterator_tag			: public input_iterator_tag         {};
-struct bidirectional_iterator_tag	: public forward_iterator_tag       {}; //NOTE: compatible with std? (ex. vector(std::cont.begin(), std::cont.end()))
+struct bidirectional_iterator_tag	: public forward_iterator_tag       {};
 struct random_access_iterator_tag	: public bidirectional_iterator_tag {};
 
 

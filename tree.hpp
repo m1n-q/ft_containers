@@ -6,34 +6,21 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/16 16:12:17 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 03:08:32 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:42:25 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-//TODO: canonical form
 #ifndef TREE_HPP
 # define TREE_HPP
 
 # define NOT_LOST '\0'
 # define LOST_L	'\1'
 # define LOST_R	'\2'
-# define TREE_HPP
 
-#include <cstddef>
-#include <cstdio>
-#include <string>
-#include "tree_iter.hpp"
-#include "utils.hpp"
-#include "pair.hpp"
-
-/**------------------------------------------------------------------------
- * 								//TODO
- * ' check NOTE: const version
- * ! time consumer : get_bf()
- * ! check leak
- *
- *------------------------------------------------------------------------**/
+# include <limits>
+# include "tree_iter.hpp"
+# include "utils.hpp"
+# include "pair.hpp"
 
 namespace ft
 {
@@ -191,13 +178,11 @@ protected:
 public:
 	allocator_type	get_allocator() const	{ return allocator_type(_node_alloc); }
 	size_type		size() const			{ return _size; }
-	size_type		max_size() const		{ return min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
-
-
 	iterator		begin() 				{ return iterator(_begin_node); }
 	const_iterator	begin() const			{ return const_iterator(_begin_node); }
 	iterator		end() 					{ return iterator(_after_end); }
 	const_iterator	end() const				{ return const_iterator(_after_end); }
+	size_type		max_size() const		{ return min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());}
 
 
 	void	swap(tree_base& t)
@@ -322,8 +307,6 @@ public:
 
 	value_compare& value_comp() 			{ return _vc; }
 	const value_compare& value_comp() const	{ return _vc; }
-
-
 
 // ! internal (base) functions
 protected:
@@ -499,18 +482,6 @@ protected:
 
 
 	virtual void		dummy() = 0;
-	static size_type	get_height(const NodePtr x)
-	{
-		size_type	lh, rh;
-
-		if (!x)
-			return 0;
-		lh = get_height(x->left);
-		rh = get_height(x->right);
-
-		return max(lh, rh) + 1;
-	}
-
 
 // ! internal (not used in Derived class)
 private:
@@ -543,24 +514,6 @@ private:
 			destroy_node(nd);
 		}
 	}
-
-
-	// //NOTE: only const version?
-	// NodePtr	find_location(const key_type& k)
-	// {
-	// 	if (this->_size == 0)			{ return NULL; }
-
-	// 	NodePtr p = NULL;
-	// 	NodePtr v = _root;
-
-	// 	while (v != NULL)
-	// 	{
-	// 		if			(value_comp()(k, v->val)) 		{ p = v; v = v->left; }
-	// 		else if		(value_comp()(v->val, k))		{ p = v; v = v->right; }
-	// 		else										{ return v; }
-	// 	}
-	// 	return p;			// where val to be inserted (parent)
-	// }
 
 	NodePtr	find_location(const key_type& k) const
 	{
@@ -674,14 +627,16 @@ public:
 		return *this;
 	}
 
+/**========================================================================
+* #                          Member functions
+*========================================================================**/
+
 	//* In order to decide BF(X), checking if height(X->subtree) was changed.
 	//* increment of height(subtree) can affects height(Parent), in SOME cases.
 	//'															 ^^^^^^^^^^^^^
 
 	//! rebalancing reduces height.
 	//! In case of Insert(), rebalancing doesn't affects height(Parent) because it is reducing after insertion.
-
-
 	pair<iterator,bool> insert(const container_value_type& val)
 	{
 		pair<iterator, bool> result;
@@ -739,23 +694,47 @@ public:
 		x = y = z = NULL;
 		result = base::insert_with_hint(hint, val);
 		if (result.second == false)
-			return (result.first);
+			return result.first;
 
 		z = result.first.ptr;
+		bool subtree_height_increased = false;
+
+		if (z->parent)
+		{
+			if (z->parent->bf == 0)
+				subtree_height_increased = true;
+			else
+				is_left_child(z) ? z->parent->bf-- : z->parent->bf++;
+		}
+
 		while (z)
 		{
-			x = y;
 			y = z;
 			z = z->parent;
 
-			if (x && y && z)
+			if (z && subtree_height_increased)
 			{
-				if (!is_balanced(z))
-					break ;
+				if (is_left_child(y))
+				{
+					if (z->bf == 1)
+						subtree_height_increased = false;
+					z->bf--;
+				}
+				else if (is_right_child(y))
+				{
+					if (z->bf == -1)
+						subtree_height_increased = false;
+					z->bf++;
+				}
 			}
+			else
+				subtree_height_increased = false;
+
+			if (!is_balanced(z))
+					break ;
 		}
 		rebalance(z);
-		return (result.first);
+		return result.first;
 	}
 
 	void remove(iterator i)
@@ -763,7 +742,14 @@ public:
 		remove(i.ptr);
 	}
 
-
+	size_type	remove_key(const key_type& k)
+	{
+		NodePtr x = base::find_key(k);
+    	if (x == NULL)
+        	return 0;
+    	remove(x);
+    	return 1;
+	}
 
 	//* In order to decide BF(X), checking if height(X->subtree) was changed.
 	//* decrement of height(subtree) can affects height(Parent), in SOME cases.
@@ -773,8 +759,6 @@ public:
 	void remove(NodePtr u)
 	{
 		NodePtr y = NULL;
-
-
 
 		pair<NodePtr, char> result	= base::delete_by_copying(u);	// * return possible deepest unbalanced node.
 		NodePtr				z		= result.first;
@@ -786,7 +770,7 @@ public:
 		{
 			if (lost == LOST_L)
 			{
-				if (z->bf < 0)		//TODO : check
+				if (z->bf < 0)
 					subtree_height_decreased = true;
 				z->bf++;
 			}
@@ -842,16 +826,6 @@ public:
 	}
 
 
-	size_type	remove_key(const key_type& k)
-	{
-		NodePtr x = base::find_key(k);
-    	if (x == NULL)
-        	return 0;
-    	remove(x);
-    	return 1;
-	}
-
-
 // ! internal tools
 private:
 	void	dummy() {}
@@ -889,7 +863,6 @@ private:
 									NodePtr x  = z->left;
 									NodePtr xr = x->right;
 
-
 									x->parent = z->parent;
 		if (z->parent)
 		{
@@ -903,17 +876,14 @@ private:
 									z->left = xr;
 		if (xr)						xr->parent = z;
 
-
-
 		if (this->_root == z)		this->_root = x;
 
-		z->bf = z->bf + 1 - min(x->bf, '\0');
-		x->bf = x->bf + 1 + max(z->bf, '\0');
+									z->bf = z->bf + 1 - min(x->bf, '\0');
+									x->bf = x->bf + 1 + max(z->bf, '\0');
 	}
 
-	NodePtr rebalance(/*NodePtr x, NodePtr y,*/ NodePtr z)		//NOTE: rebalance OK?
+	NodePtr rebalance(NodePtr z)
 	{
-
 		NodePtr	newz = z;
 
 		if (z)
@@ -933,17 +903,6 @@ private:
 			newz = z->parent;
 		}
 		return newz;
-	}
-
-	size_type	get_bf(NodePtr z)
-	{
-		size_type	lh, rh, diff;
-
-		lh = base::get_height(z->left);
-		rh = base::get_height(z->right);
-
-		diff =  (lh > rh) ? (lh - rh) : (rh - lh);
-		return diff;
 	}
 
 	bool		is_balanced(NodePtr z)
@@ -983,11 +942,10 @@ bool	is_right_child(NodePtr x)	{ return (x == x->parent->right); }
 template <class NodePtr>
 NodePtr	_next(NodePtr x)
 {
-	if (x->_link_to_dummy)	return (x->_link_to_dummy);
-	if (x->right != NULL)	return (deepest_left(x->right));
+	if (x->_link_to_dummy)		return (x->_link_to_dummy);
+	if (x->right != NULL)		return (deepest_left(x->right));
 
-	while (!is_left_child(x))
-		x = x->parent;
+	while (!is_left_child(x))	x = x->parent;
 
 	return (x->parent);
 }
@@ -995,11 +953,10 @@ NodePtr	_next(NodePtr x)
 template <class NodePtr>
 NodePtr	_prev(NodePtr x)
 {
-	if (x->_link_to_end)	return (x->_link_to_end);
-	if (x->left != NULL)	return deepest_right(x->left);
+	if (x->_link_to_end)		return (x->_link_to_end);
+	if (x->left != NULL)		return deepest_right(x->left);
 
-	while (is_left_child(x))
-    	x = x->parent;
+	while (is_left_child(x))	x = x->parent;
 
 	return (x->parent);
 }

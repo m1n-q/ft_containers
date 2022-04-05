@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 14:20:31 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:38:31 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:57:17 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,32 +15,11 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-// #include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <limits>
-#include <stdexcept>
 # include <memory>
-# include "iterator.hpp"
 # include "wrap_iter.hpp"
+# include "reverse_iterator.hpp"
 # include "pair.hpp"
 # include "utils.hpp"
-
-/**-----------------------------------------------------------------------------
- *
- *	@ ISO/IEC 14882:1998
- *
- * * [Note: This follows directly from the requirements in the Iterator Requirements Table.
- * * Integral types cannot be iterators, so, if n1 and n2 are values of an integral type N,
- * * the expression X(n1, n2) cannot possibly be interpreted as construction from a range of iterators.
- * !                          ^^^^^^                   						        ^^^^^^^^^^^^^^^^^^^
- * * It must be taken to mean the first constructor in the Iterator Requirements Table, not the second one.
- * * If there is no conversion from N to X::value_type, then this is not a valid expression at all.
- *
- * * One way that sequence implementors can satisfy this requirement is to specialize the member template for every integral type.
- * * Less cumbersome implementation techniques also exist. —end note]
- *
- *--------------------------------------------------------------------------**/
 namespace ft
 {
 
@@ -618,9 +597,24 @@ template <class T, class Alloc> bool operator>= (const vector<T,Alloc>& lhs, con
 * #                         non-member functions
 *========================================================================**/
 template <class T, class Alloc> void swap (vector<T,Alloc>& x, vector<T,Alloc>& y)	{ x.swap(y); }
+}
+#endif
+
+/**-----------------------------------------------------------------------------
+ *
+ *	@ ISO/IEC 14882:1998
+ *
+ * * [Note: This follows directly from the requirements in the Iterator Requirements Table.
+ * * Integral types cannot be iterators, so, if n1 and n2 are values of an integral type N,
+ * * the expression X(n1, n2) cannot possibly be interpreted as construction from a range of iterators.
+ * !                          ^^^^^^                   						        ^^^^^^^^^^^^^^^^^^^
+ * * It must be taken to mean the first constructor in the Iterator Requirements Table, not the second one.
+ * * If there is no conversion from N to X::value_type, then this is not a valid expression at all.
+ *
+ * * One way that sequence implementors can satisfy this requirement is to specialize the member template for every integral type.
+ * * Less cumbersome implementation techniques also exist. —end note]
+ *
+ *--------------------------------------------------------------------------**/
 
 // ! SFIANE => 함수의 "선언부" 에 올바르지 않은 타입을 넣어서 타입 치환 오류를 발생시켜야 합니다.
 // '                 ^^^^^
-
-}
-#endif

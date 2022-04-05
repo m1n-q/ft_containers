@@ -6,17 +6,19 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/05 02:32:58 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:36:44 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:53:59 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WRAP_ITER_HPP
 # define WRAP_ITER_HPP
+
 # include "iterator.hpp"
+# include "enable_if.hpp"
 
 namespace ft
 {
-//NOTE: for vector (random_access_iterator, pointer)
+// for vector::iterator (random_access_iterator, pointer)
 template <class T> class wrap_iter
 {
 public:

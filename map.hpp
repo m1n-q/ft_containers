@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 15:32:48 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 03:04:30 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:56:04 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,8 @@
 # define MAP_HPP
 
 # include <memory>
-# include <map>
-# include "pair.hpp"
-# include "iterator.hpp"
+# include "reverse_iterator.hpp"
 # include "tree.hpp"
-# include "tree_iter.hpp"
-# include "algorithm.hpp"
 
 namespace ft
 {

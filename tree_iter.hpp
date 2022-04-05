@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/18 14:11:24 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 03:06:10 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 17:32:08 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define MAP_ITER_HPP
 
 # include "iterator.hpp"
-# include "pair.hpp"
 
 namespace ft
 {

@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 12:37:00 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:41:18 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 17:31:42 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,6 @@
 # define STACK_HPP
 
 # include "vector.hpp"
-# include <cstddef>
-# include <stack>
-
-
 namespace ft
 {
 

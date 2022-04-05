@@ -6,14 +6,13 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 18:19:32 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/05 02:16:21 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 17:27:35 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IS_INTEGRAL_HPP
 # define IS_INTEGRAL_HPP
 
-#include <stddef.h>
 namespace ft
 {
 template <class T> struct remove_const					{typedef T type;};
@@ -40,7 +39,7 @@ template <> 		struct is_integral_base<char>				: true_type {};
 template <> 		struct is_integral_base<signed char>		: true_type {};
 template <> 		struct is_integral_base<unsigned char>		: true_type {};
 template <> 		struct is_integral_base<wchar_t>			: true_type {};
-#if _LIBCPP_STD_VER >= 11
+#if __cplusplus >= 201103L
 template <> 		struct is_integral_base<char16_t>			: true_type {};
 template <> 		struct is_integral_base<char32_t>			: true_type {};
 #endif
@@ -50,8 +49,8 @@ template <> 		struct is_integral_base<int>				: true_type {};
 template <> 		struct is_integral_base<unsigned int>		: true_type {};
 template <> 		struct is_integral_base<long>				: true_type {};
 template <> 		struct is_integral_base<unsigned long>		: true_type {};
-template <> 		struct is_integral_base<long long>			: true_type {};	//'
-template <> 		struct is_integral_base<unsigned long long>	: true_type {};	//'
+template <> 		struct is_integral_base<long long>			: true_type {};
+template <> 		struct is_integral_base<unsigned long long>	: true_type {};
 
 
 template <class T>	struct is_integral

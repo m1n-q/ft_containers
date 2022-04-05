@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 20:50:52 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 22:30:42 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 18:16:21 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,12 @@
 void	print_header(int input)
 {
 	input ? system(" artii \"FT\" | lolcat -F 0.25") : system(" artii \"STD\" | lolcat -F 0.25");
+}
+
+
+void	print_cheader(std::string s)
+{
+	system((std::string("artii ") + s + " | lolcat -F 0.25").c_str());
 }
 
 template <class Vec>

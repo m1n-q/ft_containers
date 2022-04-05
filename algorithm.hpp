@@ -6,7 +6,7 @@
 /*   By: mishin <mishin@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 17:55:15 by mishin            #+#    #+#             */
-/*   Updated: 2022/04/02 23:18:14 by mishin           ###   ########.fr       */
+/*   Updated: 2022/04/05 17:40:00 by mishin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@ namespace ft
 
 
 
-	// Returns true if the range [first1,last1) compares lexicographically less than the range [first2,last2).
 	// default (1)
+	// Returns true if the range [first1,last1) compares lexicographically less than the range [first2,last2).
 	template <class InputIterator1, class InputIterator2>
 	bool
 	lexicographical_compare(InputIterator1 first1, InputIterator1 last1,
@@ -63,7 +63,8 @@ namespace ft
 														// if equal -> false
 	}
 
-    // custom (2): comp(a, b) return true only if (a < b)
+    // custom (2)
+	// comp(a, b) return true only if (a < b)
 	template <class InputIterator1, class InputIterator2, class Compare>
 	bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
 								  InputIterator2 first2, InputIterator2 last2,
@@ -80,4 +81,5 @@ namespace ft
 																// if equal -> false
 	}
 }
+
 #endif
